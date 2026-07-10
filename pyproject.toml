@@ -1,0 +1,20 @@
+[project]
+name = "notion-auto-organize"
+version = "0.1.0"
+description = "Organize messy Notion developer study notes into structured Markdown and replace the original page content."
+requires-python = ">=3.10"
+dependencies = [
+    "langchain>=1.0,<2",
+    "langchain-google-genai>=4.0,<5",
+    "langchain-openai>=1.0,<2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["notion_auto_organize*"]

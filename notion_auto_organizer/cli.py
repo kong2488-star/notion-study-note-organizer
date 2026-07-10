@@ -1,0 +1,37 @@
+from __future__ import annotations
+
+import argparse
+
+from .ai_factory import create_ai_client
+from .config import load_settings
+from .notion import NotionClient
+from .organizer import NotionPageOrganizer
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Organize a messy Notion developer study page into structured learning-note Markdown.",
+    )
+    parser.add_argument("--page-id", required=True, help="Notion page ID to read and replace.")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    try:
+        settings = load_settings()
+        organizer = NotionPageOrganizer(
+            NotionClient(settings.notion_token),
+            create_ai_client(settings),
+        )
+        result = organizer.organize_page(args.page_id)
+    except Exception as exc:
+        parser.exit(1, f"error: {exc}\n")
+
+    print(f"Organized Notion page: {result.title}")
+    print(f"Backup saved: {result.backup_path}")
+    print(f"Post saved: {result.post_path}")
+    print(f"Blocks appended: {result.block_count}")
+    return 0

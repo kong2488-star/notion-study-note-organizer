@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: notion-auto-organize
+Version: 0.1.0
+Summary: Organize messy Notion developer study notes into structured Markdown and replace the original page content.
+Requires-Python: >=3.10
+Requires-Dist: langchain<2,>=1.0
+Requires-Dist: langchain-google-genai<5,>=4.0
+Requires-Dist: langchain-openai<2,>=1.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
