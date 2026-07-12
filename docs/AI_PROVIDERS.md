@@ -2,13 +2,13 @@
 
 ## Provider Selection
 
-`.env`의 `AI_PROVIDER`로 사용할 provider를 선택한다.
+Choose the provider in `.env` with `AI_PROVIDER`.
 
 ```env
 AI_PROVIDER=gemini
 ```
 
-지원 값은 `gemini`와 `openai`다. 생략하면 Gemini가 기본값으로 사용된다.
+Valid values are currently `gemini` and `openai`. If the variable is omitted, Gemini is used by default.
 
 ## Gemini
 
@@ -17,7 +17,7 @@ GEMINI_API_KEY=your-gemini-key
 GEMINI_MODEL=gemini-2.5-flash-lite
 ```
 
-`GeminiClient`는 `langchain-google-genai`의 `ChatGoogleGenerativeAI`를 사용한다.
+`GeminiClient` uses `langchain-google-genai` and `ChatGoogleGenerativeAI`.
 
 ## OpenAI-Compatible Proxy
 
@@ -27,11 +27,11 @@ CHAT_PROXY_URL=https://your-proxy.example/v1
 OPENAI_MODEL=your-model
 ```
 
-`PROXY_TOKEN`은 API key로 전달되고, `CHAT_PROXY_URL`은 `ChatOpenAI`의 `base_url`로 전달된다. 이 설정은 HTTP 네트워크 proxy가 아니라 OpenAI-compatible API endpoint를 의미한다.
+`PROXY_TOKEN` is passed as the API key, and `CHAT_PROXY_URL` is passed as the `base_url` for `ChatOpenAI`. This setup is intended for OpenAI-compatible API endpoints, not a generic HTTP streaming proxy.
 
 ## Shared Contract
 
-모든 provider는 다음 메서드를 제공해야 한다.
+All providers must implement the following method:
 
 ```python
 class AIClient(Protocol):
@@ -39,12 +39,12 @@ class AIClient(Protocol):
         ...
 ```
 
-provider-specific SDK와 응답 형식은 각 client 내부에서 처리하고, organizer에는 정리된 Markdown 문자열만 반환한다.
+Provider-specific SDK code should stay inside each provider client. The organizer should only receive the final Markdown string.
 
 ## Embeddings
 
-`EMBEDDING_PROXY_URL`과 `OPENAI_EMBEDDING_MODEL`은 향후 검색/RAG 기능을 위한 설정이다. 현재 Notion note organization 경로에서는 사용하지 않는다.
+`EMBEDDING_PROXY_URL` and `OPENAI_EMBEDDING_MODEL` are reserved for future embedding-based RAG support. They are not used in the current Notion note organization flow.
 
 ## Connection Check
 
-전체 Notion 페이지를 보내기 전에 짧은 prompt로 provider 연결을 확인한다. 실제 페이지 실행은 테스트용 Notion 페이지에서 먼저 수행한다.
+Before sending a real Notion page, verify the provider connection with a short prompt. Run the first test against a sample Notion page, because a successful workflow replaces the page contents.

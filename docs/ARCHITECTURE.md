@@ -2,32 +2,32 @@
 
 ## Purpose
 
-이 프로젝트는 하나의 Notion 페이지에 작성된 개발 공부 메모를 읽어 구조화된 Markdown 학습 노트로 만들고, 성공한 결과만 같은 페이지에 다시 작성한다.
+This project reads rough developer study notes from a Notion page, converts the block tree into Markdown, organizes the content into a beginner-friendly Korean study document through a selected AI provider, and then replaces the page contents with the organized result.
 
 ## Data Flow
 
 ```text
 Notion page
-  -> NotionClient: block tree 읽기
-  -> blocks_to_markdown: 원본 Markdown 변환
-  -> backups/: 원본 저장
-  -> AIClient: 선택된 LangChain agent 호출
-  -> posts/: 정리 결과 저장
-  -> markdown_to_blocks: Notion block 변환
-  -> NotionClient: 기존 children archive 후 새 block append
+  -> NotionClient: load block tree
+  -> blocks_to_markdown: convert original content to Markdown
+  -> backups/: save original Markdown
+  -> AIClient: call the selected LangChain agent
+  -> posts/: save organized result
+  -> markdown_to_blocks: convert organized Markdown back to Notion blocks
+  -> NotionClient: archive existing children and append new blocks
 ```
 
-AI 호출 또는 Markdown 변환이 실패하면 archive 단계에 도달하지 않으므로 기존 페이지 내용은 유지된다.
+If the AI call or Markdown organization step fails, the archive step is not performed, so the existing Notion page content remains untouched.
 
 ## Module Boundaries
 
-- `notion.py`: Notion API 요청과 block pagination/chunking만 담당한다.
-- `markdown_convert.py`: Notion block과 Markdown 사이의 변환만 담당한다.
-- `organizer.py`: 백업, AI 호출, 결과 저장, 페이지 교체 순서를 조정한다.
-- `ai_client.py`: provider 공통 Protocol, prompt, agent 결과 추출을 제공한다.
-- `gemini_client.py`: LangChain Gemini chat model과 agent를 만든다.
-- `openai_client.py`: OpenAI-compatible proxy용 LangChain chat model과 agent를 만든다.
-- `ai_factory.py`: `AI_PROVIDER` 설정에 따라 provider 구현체를 생성한다.
-- `config.py`: `.env` 로딩과 provider별 필수 설정 검증을 담당한다.
+- `notion.py`: handles Notion API requests, block tree loading, archiving, and append chunking.
+- `markdown_convert.py`: handles conversion between Notion blocks and Markdown.
+- `organizer.py`: coordinates backups, AI calls, output storage, and page replacement.
+- `ai_client.py`: defines the shared `AIClient` protocol, prompt, and agent output extraction.
+- `gemini_client.py`: implements the LangChain Gemini chat model and agent.
+- `openai_client.py`: implements the OpenAI-compatible proxy LangChain chat model and agent.
+- `ai_factory.py`: selects the provider implementation based on `AI_PROVIDER`.
+- `config.py`: loads `.env` values and validates provider-specific settings.
 
-새 provider를 추가할 때 `NotionPageOrganizer`를 수정하지 않고 `AIClient`를 구현한 client와 factory 분기만 추가한다.
+When adding a new provider, implement `AIClient.organize_markdown()` and keep the provider-specific client logic isolated inside that provider module. The `NotionPageOrganizer` should remain independent of the selected AI provider.
