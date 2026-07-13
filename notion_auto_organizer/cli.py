@@ -54,4 +54,6 @@ def main(argv: list[str] | None = None) -> int:
 def _cache_namespace(settings) -> str:
     if settings.ai_provider == "gemini":
         return f"{settings.ai_provider}-{settings.gemini_model}"
-    return f"{settings.ai_provider}-{settings.openai_model}"
+    if settings.ai_provider == "openai":
+        return f"{settings.ai_provider}-{settings.openai_model}"
+    raise ValueError(f"Unsupported AI_PROVIDER: {settings.ai_provider}")
