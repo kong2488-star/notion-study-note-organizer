@@ -13,6 +13,11 @@ def build_parser() -> argparse.ArgumentParser:
         description="Organize a messy Notion developer study page into structured learning-note Markdown.",
     )
     parser.add_argument("--page-id", required=True, help="Notion page ID to read and replace.")
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Ignore the cached AI response and organize the current page again.",
+    )
     return parser
 
 
@@ -25,7 +30,10 @@ def main(argv: list[str] | None = None) -> int:
         organizer = NotionPageOrganizer(
             NotionClient(settings.notion_token),
             create_ai_client(settings),
+            cache_namespace=_cache_namespace(settings),
         )
+        if args.refresh:
+            organizer.ai_cache.clear()
         result = organizer.organize_page(args.page_id)
     except Exception as exc:
         parser.exit(1, f"error: {exc}\n")
@@ -35,3 +43,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Post saved: {result.post_path}")
     print(f"Blocks appended: {result.block_count}")
     return 0
+
+
+def _cache_namespace(settings) -> str:
+    if settings.ai_provider == "gemini":
+        return f"{settings.ai_provider}-{settings.gemini_model}"
+    return f"{settings.ai_provider}-{settings.openai_model}"

@@ -50,6 +50,7 @@ def test_ai_failure_does_not_replace_notion_page(tmp_path: Path):
         FailingAI(),
         backups_dir=tmp_path / "backups",
         posts_dir=tmp_path / "posts",
+        cache_dir=tmp_path / "cache",
     )
 
     with pytest.raises(RuntimeError):

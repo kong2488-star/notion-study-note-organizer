@@ -14,8 +14,7 @@ Rules:
   ## 핵심 요약
   ## 개념 정리
   ## 예시 코드
-  ## 헷갈리기 쉬운 점
-  ## 정리
+- Please respond without using Markdown bold syntax (**).
 - Infer the programming language or framework from the source note.
 - Add short, helpful example code when it improves understanding.
 - Explain what to notice below each code example.

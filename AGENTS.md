@@ -71,7 +71,7 @@ python -m pytest
 Organize a test Notion page:
 
 ```powershell
-python -m notion_auto_organize --page-id "<PAGE_ID>"
+python -m notion_auto_organizer --page-id "<PAGE_ID>"
 ```
 
 Run a short provider prompt before sending a full Notion page. Use a test page first because the successful workflow replaces the page contents.
