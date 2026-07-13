@@ -3,6 +3,8 @@ from pathlib import Path
 from notion_auto_organizer.cache import AIResponseCache
 from notion_auto_organizer.organizer import NotionPageOrganizer
 
+PAGE_ID = "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d"
+
 
 class FakeNotion:
     def __init__(self) -> None:
@@ -57,7 +59,7 @@ def test_same_source_uses_cached_ai_response(tmp_path: Path) -> None:
         cache_dir=cache_dir,
         cache_namespace="gemini-test",
     )
-    first.organize_page("page")
+    first.organize_page(PAGE_ID)
 
     second_ai = CountingAI()
     second = NotionPageOrganizer(
@@ -68,7 +70,7 @@ def test_same_source_uses_cached_ai_response(tmp_path: Path) -> None:
         cache_dir=cache_dir,
         cache_namespace="gemini-test",
     )
-    second.organize_page("page")
+    second.organize_page(PAGE_ID)
 
     assert first_ai.calls == 1
     assert second_ai.calls == 0

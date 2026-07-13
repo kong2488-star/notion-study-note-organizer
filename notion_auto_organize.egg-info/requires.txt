@@ -1,6 +1,0 @@
-langchain<2,>=1.0
-langchain-google-genai<5,>=4.0
-langchain-openai<2,>=1.0
-
-[dev]
-pytest>=8

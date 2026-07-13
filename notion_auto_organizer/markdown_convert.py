@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-
 SUPPORTED_CHILD_TYPES = {
     "paragraph",
     "bulleted_list_item",
@@ -36,7 +35,9 @@ def blocks_to_markdown(blocks: list[dict[str, Any]], depth: int = 0) -> str:
             lines.append(f"{indent}1. {rich_text_to_markdown(data.get('rich_text', []))}")
         elif block_type == "to_do":
             checked = "x" if data.get("checked") else " "
-            lines.append(f"{indent}- [{checked}] {rich_text_to_markdown(data.get('rich_text', []))}")
+            lines.append(
+                f"{indent}- [{checked}] {rich_text_to_markdown(data.get('rich_text', []))}"
+            )
         elif block_type == "quote":
             lines.append(f"> {rich_text_to_markdown(data.get('rich_text', []))}")
         elif block_type == "code":

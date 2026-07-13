@@ -1,5 +1,9 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "notion-auto-organize"
+name = "notion-auto-organizer"
 version = "0.1.0"
 description = "Organize messy Notion developer study notes into structured Markdown and replace the original page content."
 requires-python = ">=3.10"
@@ -10,11 +14,24 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+notion-auto-organizer = "notion_auto_organizer.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["notion_auto_organizer*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
 
-[tool.setuptools.packages.find]
-include = ["notion_auto_organize*"]
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]

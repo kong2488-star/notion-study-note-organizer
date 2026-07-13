@@ -8,7 +8,7 @@ from pathlib import Path
 from .ai_client import AIClient
 from .cache import AIResponseCache
 from .markdown_convert import blocks_to_markdown, markdown_to_blocks
-from .notion import NotionClient
+from .notion import NotionClient, normalize_page_id
 
 
 @dataclass(frozen=True)
@@ -37,6 +37,7 @@ class NotionPageOrganizer:
         self.ai_cache = AIResponseCache(cache_dir, cache_namespace)
 
     def organize_page(self, page_id: str) -> OrganizeResult:
+        page_id = normalize_page_id(page_id)
         title = self.notion.get_page_title(page_id)
         blocks = self.notion.list_block_children_tree(page_id)
         original_markdown = blocks_to_markdown(blocks)

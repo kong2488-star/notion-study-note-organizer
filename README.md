@@ -48,7 +48,13 @@ python -m pytest
 ## Run
 
 ```powershell
-python -m notion_auto_organize --page-id "NOTION_PAGE_ID"
+python -m notion_auto_organizer --page-id "NOTION_PAGE_ID"
+```
+
+`pip install -e .` 후에는 콘솔 명령으로도 실행할 수 있습니다. `--page-id`에는 페이지 ID 또는 Notion page URL을 그대로 넣을 수 있습니다.
+
+```powershell
+notion-auto-organizer --page-id "https://www.notion.so/workspace/페이지제목-1a2b3c..."
 ```
 
 실행 순서는 원본 백업, AI 정리, 결과 저장, Notion page 교체입니다.

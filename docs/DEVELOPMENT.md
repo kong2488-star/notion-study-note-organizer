@@ -23,8 +23,10 @@ Because live API calls are not covered by unit tests, always verify a short prom
 ## Run
 
 ```powershell
-python -m notion_auto_organize --page-id "<PAGE_ID>"
+python -m notion_auto_organizer --page-id "<PAGE_ID>"
 ```
+
+`--page-id` accepts either a bare page ID or a full Notion page URL. After `pip install -e .`, the `notion-auto-organizer` console command is also available.
 
 During execution, the original content is backed up, AI organization runs, and the Notion page is replaced only after the organized result succeeds. Original Markdown is saved under `backups/`, and the AI-generated result is saved under `posts/`.
 

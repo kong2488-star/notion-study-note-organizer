@@ -36,9 +36,7 @@ class AIResponseCache:
             return
 
     def _path_for(self, source_markdown: str) -> Path:
-        cache_key = hashlib.sha256(
-            f"{self.namespace}\0{source_markdown}".encode("utf-8")
-        ).hexdigest()
+        cache_key = hashlib.sha256(f"{self.namespace}\0{source_markdown}".encode()).hexdigest()
         return self.directory / f"{self._safe_namespace()}-{cache_key}.md"
 
     def _safe_namespace(self) -> str:

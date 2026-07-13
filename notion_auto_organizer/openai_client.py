@@ -3,7 +3,7 @@ from __future__ import annotations
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
 
-from .ai_client import AIClient, NOTE_ORGANIZER_PROMPT, extract_agent_text
+from .ai_client import NOTE_ORGANIZER_PROMPT, organize_with_agent
 
 
 class OpenAIClient:
@@ -22,10 +22,4 @@ class OpenAIClient:
         )
 
     def organize_markdown(self, markdown: str) -> str:
-        result = self.agent.invoke(
-            {"messages": [{"role": "user", "content": markdown}]}
-        )
-        text = extract_agent_text(result).strip()
-        if not text:
-            raise RuntimeError("OpenAI agent did not return output text.")
-        return text
+        return organize_with_agent(self.agent, markdown, provider="OpenAI")

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from .http import request_json
 
-
 NOTION_API_BASE = "https://api.notion.com/v1"
 NOTION_VERSION = "2022-06-28"
+NOTION_PAGE_ID_PATTERN = re.compile(
+    r"(?P<page_id>[0-9a-fA-F]{32}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"
+)
 
 
 class NotionClient:
@@ -17,7 +20,10 @@ class NotionClient:
         }
 
     def retrieve_page(self, page_id: str) -> dict[str, Any]:
-        return request_json("GET", f"{NOTION_API_BASE}/pages/{page_id}", headers=self.headers)
+        normalized_page_id = normalize_page_id(page_id)
+        return request_json(
+            "GET", f"{NOTION_API_BASE}/pages/{normalized_page_id}", headers=self.headers
+        )
 
     def get_page_title(self, page_id: str) -> str:
         page = self.retrieve_page(page_id)
@@ -71,3 +77,14 @@ class NotionClient:
     def archive_children(self, block_id: str) -> None:
         for child in self.list_block_children(block_id):
             self.archive_block(child["id"])
+
+
+def normalize_page_id(page_id: str) -> str:
+    stripped = page_id.strip()
+    if not stripped:
+        raise ValueError("page_id cannot be empty.")
+
+    match = NOTION_PAGE_ID_PATTERN.search(stripped)
+    if match is None:
+        raise ValueError(f"Could not find a valid Notion page ID in: {page_id!r}")
+    return match.group("page_id")

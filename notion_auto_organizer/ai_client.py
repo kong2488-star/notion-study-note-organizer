@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Protocol
-
+from typing import Any, Protocol
 
 NOTE_ORGANIZER_PROMPT = """You are an editor for beginner-friendly Korean developer study notes.
 Rewrite the user's rough Notion notes into structured Markdown.
@@ -27,6 +26,14 @@ Rules:
 class AIClient(Protocol):
     def organize_markdown(self, markdown: str) -> str:
         """Turn rough Markdown notes into organized study notes."""
+
+
+def organize_with_agent(agent: Any, markdown: str, *, provider: str) -> str:
+    result = agent.invoke({"messages": [{"role": "user", "content": markdown}]})
+    text = extract_agent_text(result).strip()
+    if not text:
+        raise RuntimeError(f"{provider} agent did not return output text.")
+    return text
 
 
 def extract_agent_text(result: dict) -> str:

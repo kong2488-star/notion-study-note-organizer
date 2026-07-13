@@ -10,9 +10,15 @@ from .organizer import NotionPageOrganizer
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Organize a messy Notion developer study page into structured learning-note Markdown.",
+        description=(
+            "Organize a messy Notion developer study page into structured learning-note Markdown."
+        ),
     )
-    parser.add_argument("--page-id", required=True, help="Notion page ID to read and replace.")
+    parser.add_argument(
+        "--page-id",
+        required=True,
+        help="Notion page ID or page URL to read and replace.",
+    )
     parser.add_argument(
         "--refresh",
         action="store_true",

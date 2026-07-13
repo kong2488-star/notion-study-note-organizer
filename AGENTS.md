@@ -18,14 +18,14 @@ If the AI call or organization step fails, do not replace the Notion page.
 
 ## Important Files
 
-- `notion_auto_organize/notion.py`: Notion API client, block tree loading, archiving, and append chunking.
-- `notion_auto_organize/markdown_convert.py`: Notion block and Markdown conversion.
-- `notion_auto_organize/organizer.py`: Backup, AI organization, output, and page replacement workflow.
-- `notion_auto_organize/ai_client.py`: Shared `AIClient` protocol, prompt, and agent output extraction.
-- `notion_auto_organize/gemini_client.py`: LangChain Gemini provider implementation.
-- `notion_auto_organize/openai_client.py`: LangChain OpenAI-compatible provider implementation.
-- `notion_auto_organize/ai_factory.py`: Provider selection based on `AI_PROVIDER`.
-- `notion_auto_organize/config.py`: `.env` loading and provider-specific configuration validation.
+- `notion_auto_organizer/notion.py`: Notion API client, page ID/URL normalization, block tree loading, archiving, and append chunking.
+- `notion_auto_organizer/markdown_convert.py`: Notion block and Markdown conversion.
+- `notion_auto_organizer/organizer.py`: Backup, AI organization, output, and page replacement workflow.
+- `notion_auto_organizer/ai_client.py`: Shared `AIClient` protocol, prompt, and agent output extraction.
+- `notion_auto_organizer/gemini_client.py`: LangChain Gemini provider implementation.
+- `notion_auto_organizer/openai_client.py`: LangChain OpenAI-compatible provider implementation.
+- `notion_auto_organizer/ai_factory.py`: Provider selection based on `AI_PROVIDER`.
+- `notion_auto_organizer/config.py`: `.env` loading and provider-specific configuration validation.
 
 ## Documentation
 
@@ -79,7 +79,7 @@ Run a short provider prompt before sending a full Notion page. Use a test page f
 ## Coding Rules
 
 - code style **Python**: Follow PEP8
-  - Use **Black** formatter for consistent style
+  - Use **ruff format** (Black-compatible) for consistent style; run `ruff check` for linting
   - Always include **type hints**
 - New AI providers must implement `AIClient.organize_markdown()`.
 - Keep provider-specific SDK code inside its provider client.

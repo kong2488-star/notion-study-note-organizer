@@ -22,7 +22,9 @@ def test_openai_client_uses_proxy_and_model(monkeypatch):
     monkeypatch.setattr(openai_client, "ChatOpenAI", fake_model)
     monkeypatch.setattr(openai_client, "create_agent", fake_create_agent)
 
-    result = OpenAIClient("proxy-token", "https://proxy.example/v1", "openai-model").organize_markdown("원문")
+    result = OpenAIClient(
+        "proxy-token", "https://proxy.example/v1", "openai-model"
+    ).organize_markdown("원문")
 
     assert result == "# 정리된 노트"
     assert captured["model"] == {
