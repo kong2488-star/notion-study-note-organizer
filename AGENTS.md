@@ -32,8 +32,19 @@ If the AI call or organization step fails, do not replace the Notion page.
 - `docs/ARCHITECTURE.md`: module boundaries and end-to-end data flow.
 - `docs/AI_PROVIDERS.md`: Gemini/OpenAI settings and provider contract.
 - `docs/DEVELOPMENT.md`: setup, tests, execution, and safety rules.
+- `docs/planning.md`: required Plan lifecycle, numbering, execution, and completion gates.
+- `docs/logging.md`: required incremental work Log content, security, and completion rules.
 
 Read the relevant document before changing architecture, AI providers, or development workflows.
+
+## Task Planning and Work Logs
+
+- Before changing any repository file, create an indexed Plan from `plan/TEMPLATE.md` and obtain approval. Read and follow `docs/planning.md`.
+- When the approved Plan becomes In Progress, immediately create its matching Log from `logs/TEMPLATE.md`. Use the same three-digit index and kebab-case slug for both files.
+- Keep the Log current while working; do not reconstruct it only at the end. Read and follow `docs/logging.md`.
+- Plans and Logs are required for every repository-changing task, including documentation and comment changes. Read-only tasks are exempt.
+- Run `python -m pytest` whenever code, tests, dependencies, generated code, or runtime-affecting configuration changes.
+- Do not mark a Log or Plan Completed until all required validation passes, the Log is finalized, and the Plan, Log, changed files, and validation results agree.
 
 ## Provider Selection
 
