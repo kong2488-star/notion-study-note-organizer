@@ -10,7 +10,7 @@
 2. 대상 Notion 페이지와 블록 트리를 읽습니다.
 3. 원본 블록을 Markdown으로 변환합니다.
 4. 원본 Markdown을 `backups/`에 저장합니다.
-5. Markdown을 선택한 AI 제공자에게 전송합니다.
+5. 같은 원본에 대한 캐시된 AI 응답이 있으면 재사용하고, 없으면 Markdown을 선택한 AI 제공자에게 전송한 뒤 결과를 캐시에 저장합니다.
 6. 정리된 Markdown을 `posts/`에 저장합니다.
 7. AI 결과가 성공한 후에만 기존 Notion 하위 블록을 보관 처리하고 새 블록을 추가합니다.
 
@@ -18,9 +18,12 @@ AI 호출이나 정리 단계가 실패하면 Notion 페이지를 교체하지 �
 
 ## 주요 파일
 
+- `notion_auto_organizer/cli.py`: 명령줄 진입점입니다. 설정과 클라이언트를 조립하고 `organize_page()`를 호출합니다.
 - `notion_auto_organizer/notion.py`: Notion API 클라이언트, 페이지 ID/URL 정규화, 블록 트리 불러오기, 보관 처리, 추가 단위 분할을 담당합니다.
+- `notion_auto_organizer/http.py`: `urllib` 기반 경량 JSON HTTP 헬퍼입니다. `notion.py`가 사용합니다.
 - `notion_auto_organizer/markdown_convert.py`: Notion 블록과 Markdown 간 변환을 담당합니다.
 - `notion_auto_organizer/organizer.py`: 백업, AI 정리, 출력, 페이지 교체 작업 흐름을 담당합니다.
+- `notion_auto_organizer/cache.py`: 원본 Markdown 기준 AI 응답 파일 캐시입니다. 같은 입력에 대한 재호출을 막습니다.
 - `notion_auto_organizer/ai_client.py`: 공통 `AIClient` 프로토콜, 프롬프트, 에이전트 출력 추출을 정의합니다.
 - `notion_auto_organizer/gemini_client.py`: LangChain Gemini 제공자 구현입니다.
 - `notion_auto_organizer/openai_client.py`: LangChain OpenAI 호환 제공자 구현입니다.
@@ -86,6 +89,12 @@ python -m pytest
 
 ```powershell
 python -m notion_auto_organizer --page-id "<PAGE_ID>"
+```
+
+캐시된 AI 응답을 무시하고 다시 정리하려면 `--refresh`를 추가하세요.
+
+```powershell
+python -m notion_auto_organizer --page-id "<PAGE_ID>" --refresh
 ```
 
 전체 Notion 페이지를 전송하기 전에 짧은 제공자 프롬프트를 실행하세요. 작업이 성공하면 페이지 내용이 교체되므로 첫 실행에는 테스트 페이지를 사용하세요.
