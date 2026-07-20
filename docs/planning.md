@@ -1,40 +1,40 @@
-# Planning Rules
+# 계획 규칙
 
-## Purpose
+## 목적
 
-Every repository-changing task must have an approved Plan before implementation. The Plan records why the work is needed, fixes the approved scope, guides execution, and defines how completion will be verified.
+저장소를 변경하는 모든 작업은 구현 전에 승인된 계획이 있어야 합니다. 계획은 작업이 필요한 이유를 기록하고 승인된 범위를 확정하며 실행을 안내하고 완료 검증 방법을 정의합니다.
 
-Read-only investigation, explanation, and review tasks that do not change repository files do not require a Plan or work Log.
+저장소 파일을 변경하지 않는 읽기 전용 조사, 설명, 검토 작업에는 계획이나 작업 로그가 필요하지 않습니다.
 
-## Creating a Plan
+## 계획 작성
 
-1. Create the Plan before changing any other repository file.
-2. Copy the structure from `plan/TEMPLATE.md`.
-3. Save it as `plan/NNN-task-slug.md`, using a three-digit index and a concise English kebab-case slug.
-4. Fill in every required section: Motivation, Goal, Scope, Steps, and Validation.
-5. Keep the Plan in Draft until the user approves it or explicitly requests execution of the presented Plan.
+1. 다른 저장소 파일을 변경하기 전에 계획을 작성합니다.
+2. `plan/TEMPLATE.md`의 구조를 복사합니다.
+3. 세 자리 번호와 간결한 영문 kebab-case 슬러그를 사용해 `plan/NNN-task-slug.md`로 저장합니다.
+4. 동기, 목표, 범위, 단계, 검증의 모든 필수 섹션을 작성합니다.
+5. 사용자가 승인하거나 제시된 계획의 실행을 명시적으로 요청할 때까지 계획 상태를 초안으로 유지합니다.
 
-Use `001` when there are no numbered Plans. Otherwise, ignore `TEMPLATE.md`, find the greatest existing index, and add one. Indexes increase across the project, including when an earlier Plan was deleted; never reuse or renumber an index.
+번호가 있는 계획이 없으면 `001`을 사용합니다. 그렇지 않으면 `TEMPLATE.md`를 제외하고 기존 계획의 가장 큰 번호에 1을 더합니다. 이전 계획이 삭제됐더라도 프로젝트 전체에서 번호를 계속 증가시키며 재사용하거나 다시 매기지 않습니다.
 
-Use one Plan for one user-requested task. Related changes within the same approved scope belong to that Plan.
+사용자가 요청한 작업 하나에 계획 하나를 사용합니다. 승인된 같은 범위의 관련 변경은 하나의 계획에 포함합니다.
 
-## Plan Lifecycle
+## 계획 수명 주기
 
-Plan status follows this sequence:
+계획 상태는 다음 순서를 따릅니다.
 
-`Draft` → `In Progress` → `Completed`
+`초안` → `진행 중` → `완료`
 
-- **Draft:** The Plan is being prepared or needs user reapproval. Do not implement the proposed repository changes.
-- **In Progress:** The Plan is approved and implementation has started. Create the matching work Log immediately and keep it current.
-- **Completed:** Every approved change and validation step is finished, the work Log is complete, and no unresolved failure blocks completion.
+- **초안:** 계획을 준비 중이거나 사용자 재승인이 필요한 상태입니다. 제안된 저장소 변경을 구현하지 마세요.
+- **진행 중:** 계획이 승인되어 구현을 시작한 상태입니다. 대응하는 작업 로그를 즉시 만들고 최신 상태로 유지하세요.
+- **완료:** 승인된 모든 변경과 검증 단계가 끝났고 작업 로그가 완료됐으며 완료를 막는 해결되지 않은 실패가 없는 상태입니다.
 
-If implementation reveals a material scope or approach change, return the Plan to Draft, record the interruption in the existing Log, stop implementation, and request reapproval. After reapproval, continue with the same Plan number and Log file.
+구현 중 범위나 접근 방식의 중대한 변경이 드러나면 계획을 초안으로 되돌리고 기존 작업 로그에 중단 내용을 기록한 뒤 구현을 멈추고 재승인을 요청하세요. 재승인 후에는 같은 계획 번호와 작업 로그 파일을 사용해 계속 진행합니다.
 
-## Execution and Completion
+## 실행과 완료
 
-- Execute the Steps in the approved Plan. Update the Plan before proceeding when its scope, steps, or validation requirements materially change.
-- Keep the Plan, Log, actual changes, and validation results consistent.
-- For changes to Python code, tests, dependencies, generated code, or configuration that affects runtime behavior, run `python -m pytest` after implementation.
-- If a required test fails, diagnose and fix it, record the meaningful failure in the Log, and run the test again. Do not mark the task Completed while a required test is failing.
-- Documentation-only or behavior-neutral comment changes do not require `pytest`; validate their Markdown structure, references, and changed content instead.
-- Complete the Log first. Mark the Plan Completed only after all required validation succeeds and the Log is Completed.
+- 승인된 계획의 단계를 실행합니다. 범위, 단계, 검증 요구사항이 중대하게 변경되면 계속하기 전에 계획을 갱신하세요.
+- 계획, 작업 로그, 실제 변경, 검증 결과를 서로 일치하게 유지하세요.
+- Python 코드, 테스트, 의존성, 생성 코드, 런타임 동작에 영향을 주는 설정을 변경하면 구현 후 `python -m pytest`를 실행하세요.
+- 필수 테스트가 실패하면 원인을 진단하고 수정한 뒤 의미 있는 실패를 작업 로그에 기록하고 테스트를 다시 실행하세요. 필수 테스트가 실패한 동안에는 작업을 완료 상태로 표시하지 마세요.
+- 문서 전용 변경이나 동작에 영향을 주지 않는 주석 변경에는 `pytest`가 필요하지 않습니다. 대신 Markdown 구조, 참조, 변경 내용을 검증하세요.
+- 작업 로그를 먼저 완료하세요. 모든 필수 검증이 성공하고 작업 로그가 완료된 후에만 계획을 완료 상태로 표시하세요.

@@ -8,7 +8,7 @@ class FakeAgent:
         return {"messages": [{"content": [{"text": "# 정리된 노트"}]}]}
 
 
-def test_openai_client_uses_proxy_and_model(monkeypatch):
+def test_openai_client_uses_official_endpoint_by_default(monkeypatch):
     captured = {}
 
     def fake_model(**kwargs):
@@ -22,15 +22,31 @@ def test_openai_client_uses_proxy_and_model(monkeypatch):
     monkeypatch.setattr(openai_client, "ChatOpenAI", fake_model)
     monkeypatch.setattr(openai_client, "create_agent", fake_create_agent)
 
-    result = OpenAIClient(
-        "proxy-token", "https://proxy.example/v1", "openai-model"
-    ).organize_markdown("원문")
+    result = OpenAIClient("openai-key", "openai-model").organize_markdown("원문")
 
     assert result == "# 정리된 노트"
     assert captured["model"] == {
-        "api_key": "proxy-token",
-        "base_url": "https://proxy.example/v1",
+        "api_key": "openai-key",
         "model": "openai-model",
         "temperature": 0.3,
     }
     assert captured["agent"]["name"] == "note_organizer_agent"
+
+
+def test_openai_client_uses_compatible_base_url(monkeypatch):
+    captured = {}
+
+    def fake_model(**kwargs):
+        captured["model"] = kwargs
+        return object()
+
+    monkeypatch.setattr(openai_client, "ChatOpenAI", fake_model)
+    monkeypatch.setattr(openai_client, "create_agent", lambda **kwargs: FakeAgent())
+
+    OpenAIClient(
+        "proxy-key",
+        "proxy-model",
+        base_url="https://proxy.example/v1",
+    ).organize_markdown("원문")
+
+    assert captured["model"]["base_url"] == "https://proxy.example/v1"

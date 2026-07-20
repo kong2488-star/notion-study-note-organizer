@@ -1,66 +1,66 @@
-# Work Logging Rules
+# 작업 로그 규칙
 
-## Purpose
+## 목적
 
-A work Log is a concise, reproducible record of how an approved Plan was implemented and validated. It is not an application request log, a user activity audit log, a transcript, or a record of an agent's private reasoning.
+작업 로그는 승인된 계획을 어떻게 구현하고 검증했는지 보여 주는 간결하고 재현 가능한 기록입니다. 애플리케이션 요청 로그, 사용자 활동 감사 로그, 대화 전문, 에이전트의 비공개 추론 기록이 아닙니다.
 
-Keep only evidence that helps another contributor understand decisions, reproduce important steps, and audit completion.
+다른 기여자가 의사결정을 이해하고 중요한 단계를 재현하며 완료 상태를 감사하는 데 도움이 되는 근거만 남기세요.
 
-## Creation and Naming
+## 생성과 이름 지정
 
-- Every repository-changing task requires a work Log, including documentation-only and behavior-neutral comment changes.
-- A read-only task that does not require a Plan does not require a work Log.
-- When an approved Plan becomes In Progress, create the Log immediately from `logs/TEMPLATE.md`.
-- Use the same three-digit index and English kebab-case slug as the Plan: `plan/001-project-setup.md` corresponds to `logs/001-project-setup.md`.
-- Use exactly one Log for each Plan. Keep completed Logs in `logs/`; do not move, delete, or replace them.
+- 문서 전용 변경과 동작에 영향을 주지 않는 주석 변경을 포함해 저장소를 변경하는 모든 작업에는 작업 로그가 필요합니다.
+- 계획이 필요 없는 읽기 전용 작업에는 작업 로그도 필요하지 않습니다.
+- 승인된 계획이 진행 중 상태가 되면 `logs/TEMPLATE.md`에서 작업 로그를 즉시 만드세요.
+- 계획과 같은 세 자리 번호와 영문 kebab-case 슬러그를 사용하세요. 예를 들어 `plan/001-project-setup.md`는 `logs/001-project-setup.md`와 대응합니다.
+- 계획마다 작업 로그 하나만 사용합니다. 완료된 작업 로그는 `logs/`에 유지하고 이동, 삭제, 교체하지 마세요.
 
-## Incremental Updates
+## 점진적 갱신
 
-Do not reconstruct the Log from memory at the end of the task. Update it promptly after:
+작업 마지막에 기억을 바탕으로 로그를 재구성하지 마세요. 다음 상황이 발생하면 신속하게 갱신하세요.
 
-- a decision that affects implementation direction;
-- an important implementation detail selected within the approved scope;
-- a meaningful code, configuration, test, documentation, or generated-file change;
-- a test failure, repeated error, implementation change, or environment constraint;
-- a lint, type check, build, test, or meaningful manual validation.
+- 구현 방향에 영향을 주는 의사결정
+- 승인된 범위 안에서 선택한 중요한 구현 세부 사항
+- 의미 있는 코드, 설정, 테스트, 문서, 생성 파일 변경
+- 테스트 실패, 반복 오류, 구현 변경, 환경 제약
+- 린트, 타입 검사, 빌드, 테스트, 의미 있는 수동 검증
 
-Before completion, reconcile the summary, changed files, validation results, and unresolved issues with the actual state of the work.
+완료 전에 요약, 변경 파일, 검증 결과, 해결되지 않은 문제를 실제 작업 상태와 대조하세요.
 
-## Required Content
+## 필수 내용
 
-Every Log keeps these sections, even when the value is `None`:
+값이 `없음`이더라도 모든 작업 로그에 다음 섹션을 유지하세요.
 
-- Plan number and path, Log status, start date, and completion date;
-- work summary;
-- key decisions and rationale;
-- changed files;
-- meaningful commands and concise result summaries;
-- meaningful failures, causes, and resolutions;
-- validation results;
-- unresolved issues and follow-up work.
+- 계획 번호와 경로, 작업 로그 상태, 시작일, 완료일
+- 작업 요약
+- 주요 결정과 근거
+- 변경 파일
+- 의미 있는 명령과 간결한 결과 요약
+- 의미 있는 실패, 원인, 해결 방법
+- 검증 결과
+- 해결되지 않은 문제와 후속 작업
 
-Record decisions and outcomes, not extended deliberation. For commands, retain only work that matters for reproduction, diagnosis, or validation, such as dependency installation, code generation, migrations, linting, type checking, builds, tests, and key error reproduction. Include the command, exit status, and essential result instead of copying full output. Omit routine file reads, repeated searches, directory listings, and trivial successful commands.
+긴 검토 과정이 아니라 결정과 결과를 기록하세요. 명령은 의존성 설치, 코드 생성, 마이그레이션, 린트, 타입 검사, 빌드, 테스트, 주요 오류 재현처럼 재현이나 진단에 필요한 작업만 남기세요. 전체 출력을 복사하지 말고 명령, 종료 상태, 핵심 결과를 기록하세요. 일상적인 파일 읽기, 반복 검색, 디렉터리 목록, 중요하지 않은 성공 명령은 생략합니다.
 
-Record failures that affect reproducibility or future work, including test or build failures, repeated errors, direction-changing problems, environment constraints, and unresolved completion blockers. Trivial mistakes corrected immediately may be omitted.
+테스트나 빌드 실패, 반복 오류, 방향을 바꾼 문제, 환경 제약, 해결되지 않은 완료 방해 요소처럼 재현성과 후속 작업에 영향을 주는 실패를 기록하세요. 즉시 수정된 사소한 실수는 생략할 수 있습니다.
 
-## Security and Data Minimization
+## 보안과 데이터 최소화
 
-Never copy the following into a work Log:
+작업 로그에 다음 내용을 복사하지 마세요.
 
-- API keys, tokens, cookies, passwords, authentication headers, or actual environment-variable values;
-- personal information or raw user input;
-- request and response bodies or full database contents;
-- private agent reasoning, full conversations, full terminal output, or full file contents.
+- API 키, 토큰, 쿠키, 비밀번호, 인증 헤더, 실제 환경변수 값
+- 개인정보나 원본 사용자 입력
+- 요청·응답 본문이나 전체 데이터베이스 내용
+- 에이전트의 비공개 추론, 전체 대화, 전체 터미널 출력, 전체 파일 내용
 
-When context is necessary, summarize it and replace any sensitive value with `[REDACTED]`.
+맥락이 필요하면 요약하고 민감한 값은 `[REDACTED]`로 바꾸세요.
 
-## Status and Completion
+## 상태와 완료
 
-Log status follows `In Progress` → `Completed`.
+작업 로그 상태는 `진행 중` → `완료` 순서를 따릅니다.
 
-- Set the status to In Progress and record the start date when the Log is created.
-- If the Plan returns to Draft for reapproval, record why work stopped and pause implementation entries. Continue in the same Log after reapproval.
-- When implementation and validation finish, finalize all required sections, set the status to Completed, and record the completion date.
-- A Plan cannot become Completed until its Log is complete. The Plan, Log, changed files, and validation evidence must agree.
+- 작업 로그를 만들 때 상태를 진행 중으로 설정하고 시작일을 기록하세요.
+- 계획이 재승인을 위해 초안으로 돌아가면 작업을 멈춘 이유를 기록하고 구현 기록을 일시 중지하세요. 재승인 후 같은 작업 로그에서 계속합니다.
+- 구현과 검증이 끝나면 모든 필수 섹션을 마무리하고 상태를 완료로 설정하며 완료일을 기록하세요.
+- 작업 로그가 완료되기 전에는 계획을 완료할 수 없습니다. 계획, 작업 로그, 변경 파일, 검증 근거가 서로 일치해야 합니다.
 
-Application HTTP logs, runtime monitoring, file rotation, retention, and external log collection are separate concerns and require their own requirements and Plan.
+애플리케이션 HTTP 로그, 런타임 모니터링, 파일 순환, 보존 정책, 외부 로그 수집은 별도 관심사이며 각각 요구사항과 계획이 필요합니다.

@@ -13,11 +13,11 @@ def make_settings(**overrides) -> Settings:
     values = {
         "notion_token": "secret-token",
         "ai_provider": "gemini",
-        "gemini_api_key": "gemini-key",
-        "gemini_model": "gemini-test-model",
+        "ai_api_key": "ai-key",
+        "ai_model": "test-model",
     }
     values.update(overrides)
-    return Settings(**values)
+    return Settings(_env_file=None, **values)
 
 
 class FakeCache:
@@ -95,9 +95,9 @@ def test_page_id_is_required(capsys):
     assert "--page-id" in capsys.readouterr().err
 
 
-def test_cache_namespace_per_provider():
+def test_settings_namespace_per_provider():
     gemini = make_settings()
-    openai = make_settings(ai_provider="openai", openai_model="gpt-test")
+    openai = make_settings(ai_provider="openai", ai_model="gpt-test")
 
-    assert cli._cache_namespace(gemini) == "gemini-gemini-test-model"
-    assert cli._cache_namespace(openai) == "openai-gpt-test"
+    assert gemini.cache_namespace == "gemini-test-model"
+    assert openai.cache_namespace == "openai-gpt-test"

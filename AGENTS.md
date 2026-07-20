@@ -1,101 +1,104 @@
-# Project Agent Notes
+# 프로젝트 에이전트 지침
 
-## Purpose
+## 목적
 
-This project reads rough developer study notes from one Notion page, converts the blocks to Markdown, asks a selected AI provider to organize the notes into a beginner-friendly Korean study document, and replaces the page contents with the organized result.
+이 프로젝트는 하나의 Notion 페이지에서 정리되지 않은 개발 학습 메모를 읽고, 블록을 Markdown으로 변환한 뒤, 선택한 AI 제공자에게 입문자 친화적인 한국어 학습 문서로 정리하도록 요청하고, 정리된 결과로 페이지 내용을 교체합니다.
 
-## Workflow
+## 작업 흐름
 
-1. Load `.env` settings.
-2. Read the target Notion page and its block tree.
-3. Convert the original blocks to Markdown.
-4. Save the original Markdown under `backups/`.
-5. Send the Markdown to the selected AI provider.
-6. Save the organized Markdown under `posts/`.
-7. Only after the AI result succeeds, archive the existing Notion children and append the new blocks.
+1. `.env` 설정을 불러옵니다.
+2. 대상 Notion 페이지와 블록 트리를 읽습니다.
+3. 원본 블록을 Markdown으로 변환합니다.
+4. 원본 Markdown을 `backups/`에 저장합니다.
+5. Markdown을 선택한 AI 제공자에게 전송합니다.
+6. 정리된 Markdown을 `posts/`에 저장합니다.
+7. AI 결과가 성공한 후에만 기존 Notion 하위 블록을 보관 처리하고 새 블록을 추가합니다.
 
-If the AI call or organization step fails, do not replace the Notion page.
+AI 호출이나 정리 단계가 실패하면 Notion 페이지를 교체하지 마세요.
 
-## Important Files
+## 주요 파일
 
-- `notion_auto_organizer/notion.py`: Notion API client, page ID/URL normalization, block tree loading, archiving, and append chunking.
-- `notion_auto_organizer/markdown_convert.py`: Notion block and Markdown conversion.
-- `notion_auto_organizer/organizer.py`: Backup, AI organization, output, and page replacement workflow.
-- `notion_auto_organizer/ai_client.py`: Shared `AIClient` protocol, prompt, and agent output extraction.
-- `notion_auto_organizer/gemini_client.py`: LangChain Gemini provider implementation.
-- `notion_auto_organizer/openai_client.py`: LangChain OpenAI-compatible provider implementation.
-- `notion_auto_organizer/ai_factory.py`: Provider selection based on `AI_PROVIDER`.
-- `notion_auto_organizer/config.py`: `.env` loading and provider-specific configuration validation.
+- `notion_auto_organizer/notion.py`: Notion API 클라이언트, 페이지 ID/URL 정규화, 블록 트리 불러오기, 보관 처리, 추가 단위 분할을 담당합니다.
+- `notion_auto_organizer/markdown_convert.py`: Notion 블록과 Markdown 간 변환을 담당합니다.
+- `notion_auto_organizer/organizer.py`: 백업, AI 정리, 출력, 페이지 교체 작업 흐름을 담당합니다.
+- `notion_auto_organizer/ai_client.py`: 공통 `AIClient` 프로토콜, 프롬프트, 에이전트 출력 추출을 정의합니다.
+- `notion_auto_organizer/gemini_client.py`: LangChain Gemini 제공자 구현입니다.
+- `notion_auto_organizer/openai_client.py`: LangChain OpenAI 호환 제공자 구현입니다.
+- `notion_auto_organizer/ai_factory.py`: `AI_PROVIDER`를 기준으로 제공자를 선택합니다.
+- `notion_auto_organizer/config.py`: Pydantic 기반 `.env` 불러오기와 공통 AI 설정 검증을 담당합니다.
 
-## Documentation
+## 문서
 
-- `docs/ARCHITECTURE.md`: module boundaries and end-to-end data flow.
-- `docs/AI_PROVIDERS.md`: Gemini/OpenAI settings and provider contract.
-- `docs/DEVELOPMENT.md`: setup, tests, execution, and safety rules.
-- `docs/planning.md`: required Plan lifecycle, numbering, execution, and completion gates.
-- `docs/logging.md`: required incremental work Log content, security, and completion rules.
+- `docs/ARCHITECTURE.md`: 모듈 경계와 전체 데이터 흐름을 설명합니다.
+- `docs/AI_PROVIDERS.md`: Gemini/OpenAI 설정과 제공자 계약을 설명합니다.
+- `docs/DEVELOPMENT.md`: 설치, 테스트, 실행, 안전 규칙을 설명합니다.
+- `docs/planning.md`: 필수 계획 수명 주기, 번호 부여, 실행, 완료 조건을 설명합니다.
+- `docs/logging.md`: 필수 점진적 작업 로그 내용, 보안, 완료 규칙을 설명합니다.
 
-Read the relevant document before changing architecture, AI providers, or development workflows.
+아키텍처, AI 제공자, 개발 작업 흐름을 변경하기 전에 관련 문서를 읽으세요.
 
-## Task Planning and Work Logs
+## 작업 계획과 작업 로그
 
-- Before changing any repository file, create an indexed Plan from `plan/TEMPLATE.md` and obtain approval. Read and follow `docs/planning.md`.
-- When the approved Plan becomes In Progress, immediately create its matching Log from `logs/TEMPLATE.md`. Use the same three-digit index and kebab-case slug for both files.
-- Keep the Log current while working; do not reconstruct it only at the end. Read and follow `docs/logging.md`.
-- Plans and Logs are required for every repository-changing task, including documentation and comment changes. Read-only tasks are exempt.
-- Run `python -m pytest` whenever code, tests, dependencies, generated code, or runtime-affecting configuration changes.
-- Do not mark a Log or Plan Completed until all required validation passes, the Log is finalized, and the Plan, Log, changed files, and validation results agree.
+- 저장소 파일을 변경하기 전에 `plan/TEMPLATE.md`에서 번호가 있는 계획을 만들고 승인을 받으세요. `docs/planning.md`를 읽고 따르세요.
+- 승인된 계획이 진행 중 상태가 되면 즉시 `logs/TEMPLATE.md`에서 대응하는 작업 로그를 만드세요. 두 파일에 같은 세 자리 번호와 kebab-case 슬러그를 사용하세요.
+- 작업 중에 로그를 계속 갱신하고 마지막에 한꺼번에 재구성하지 마세요. `docs/logging.md`를 읽고 따르세요.
+- 문서와 주석 변경을 포함해 저장소를 변경하는 모든 작업에는 계획과 작업 로그가 필요합니다. 읽기 전용 작업은 제외됩니다.
+- 코드, 테스트, 의존성, 생성 코드, 런타임에 영향을 주는 설정을 변경하면 `python -m pytest`를 실행하세요.
+- 모든 필수 검증이 통과하고 작업 로그가 마무리되며 계획, 작업 로그, 변경 파일, 검증 결과가 서로 일치하기 전에는 작업 로그나 계획을 완료 상태로 표시하지 마세요.
 
-## Provider Selection
+## 제공자 선택
 
-Set `AI_PROVIDER` in `.env`:
+`.env`에서 `AI_PROVIDER`를 설정하세요.
 
 ```env
+NOTION_TOKEN=...
 AI_PROVIDER=gemini
+AI_API_KEY=...
+AI_MODEL=...
 ```
 
-For OpenAI-compatible proxy usage:
+OpenAI 호환 프록시를 사용할 때는 다음과 같이 설정하세요.
 
 ```env
 AI_PROVIDER=openai
-PROXY_TOKEN=...
-CHAT_PROXY_URL=...
-OPENAI_MODEL=...
+AI_API_KEY=...
+AI_MODEL=...
+AI_BASE_URL=https://your-proxy.example/v1
 ```
 
-Gemini uses `GEMINI_API_KEY` and `GEMINI_MODEL`. Never commit `.env` or expose API keys in logs, tests, or error messages.
+`AI_PROVIDER`에는 기본값이 없습니다. Gemini 또는 OpenAI 공식 endpoint를 사용할 때는 `AI_BASE_URL`을 생략하세요. `.env`를 커밋하거나 API 키를 로그, 테스트, 오류 메시지에 노출하지 마세요.
 
-## Commands
+## 명령어
 
-Install the project and development dependencies:
+프로젝트와 개발 의존성을 설치합니다.
 
 ```powershell
 python -m pip install -e ".[dev]"
 ```
 
-Run tests:
+테스트를 실행합니다.
 
 ```powershell
 python -m pytest
 ```
 
-Organize a test Notion page:
+테스트용 Notion 페이지를 정리합니다.
 
 ```powershell
 python -m notion_auto_organizer --page-id "<PAGE_ID>"
 ```
 
-Run a short provider prompt before sending a full Notion page. Use a test page first because the successful workflow replaces the page contents.
+전체 Notion 페이지를 전송하기 전에 짧은 제공자 프롬프트를 실행하세요. 작업이 성공하면 페이지 내용이 교체되므로 첫 실행에는 테스트 페이지를 사용하세요.
 
-## Coding Rules
+## 코딩 규칙
 
-- code style **Python**: Follow PEP8
-  - Use **ruff format** (Black-compatible) for consistent style; run `ruff check` for linting
-  - Always include **type hints**
-- New AI providers must implement `AIClient.organize_markdown()`.
-- Keep provider-specific SDK code inside its provider client.
-- Keep `NotionPageOrganizer` independent of the selected AI provider.
-- Preserve the backup-before-replacement workflow.
-- Keep generated `backups/` and `posts/` files out of source control.
-- Add or update unit tests for provider selection, response extraction, Markdown conversion, and failure safety.
-- Do not add automatic retries or new external tools without documenting the behavior and testing the failure path.
+- **Python** 코드 스타일은 PEP8을 따릅니다.
+  - 일관된 스타일을 위해 Black 호환 **ruff format**을 사용하고 린트 검사에는 `ruff check`를 실행하세요.
+  - 항상 타입 힌트를 포함하세요.
+- 새 AI 제공자는 `AIClient.organize_markdown()`을 구현해야 합니다.
+- 제공자별 SDK 코드는 해당 제공자 클라이언트 안에 유지하세요.
+- `NotionPageOrganizer`가 선택된 AI 제공자와 독립적이도록 유지하세요.
+- 페이지 교체 전에 백업하는 작업 흐름을 보존하세요.
+- 생성된 `backups/`와 `posts/` 파일을 소스 제어에 포함하지 마세요.
+- 제공자 선택, 응답 추출, Markdown 변환, 실패 안전성을 위한 단위 테스트를 추가하거나 갱신하세요.
+- 동작을 문서화하고 실패 경로를 테스트하지 않은 상태로 자동 재시도나 새 외부 도구를 추가하지 마세요.

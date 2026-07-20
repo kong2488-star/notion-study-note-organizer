@@ -7,12 +7,13 @@ from .openai_client import OpenAIClient
 
 
 def create_ai_client(settings: Settings) -> AIClient:
+    api_key = settings.ai_api_key.get_secret_value()
     if settings.ai_provider == "gemini":
-        return GeminiClient(settings.gemini_api_key, settings.gemini_model)
+        return GeminiClient(api_key, settings.ai_model)
     if settings.ai_provider == "openai":
         return OpenAIClient(
-            settings.proxy_token,
-            settings.chat_proxy_url,
-            settings.openai_model,
+            api_key,
+            settings.ai_model,
+            base_url=settings.ai_base_url,
         )
     raise ValueError(f"Unsupported AI_PROVIDER: {settings.ai_provider}")

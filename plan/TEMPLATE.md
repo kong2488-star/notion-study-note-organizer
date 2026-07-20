@@ -1,23 +1,23 @@
-# NNN Task Title
+# NNN 작업 제목
 
-- **Status:** Draft
+- **상태:** 초안
 
-## Motivation
+## 동기
 
-Explain why this work is needed and what problem or opportunity prompted it.
+이 작업이 필요한 이유와 작업을 요청하게 된 문제 또는 기회를 설명합니다.
 
-## Goal
+## 목표
 
-Describe the intended outcome and the conditions that define success.
+의도한 결과와 성공을 판단하는 조건을 설명합니다.
 
-## Scope
+## 범위
 
-List the changes that are included and explicitly note important exclusions.
+포함되는 변경을 나열하고 중요한 제외 사항을 명시합니다.
 
-## Steps
+## 단계
 
-1. List the approved implementation steps in execution order.
+1. 승인된 구현 단계를 실행 순서대로 나열합니다.
 
-## Validation
+## 검증
 
-List the checks, tests, and completion criteria required for this task.
+작업에 필요한 검사, 테스트, 완료 조건을 나열합니다.

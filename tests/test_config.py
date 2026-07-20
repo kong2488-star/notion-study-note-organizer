@@ -1,100 +1,149 @@
-import os
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
-from notion_auto_organizer.config import load_dotenv, load_settings
+from notion_auto_organizer.config import Settings, load_settings
+
+UNIFIED_ENV_KEYS = (
+    "NOTION_TOKEN",
+    "AI_PROVIDER",
+    "AI_API_KEY",
+    "AI_MODEL",
+    "AI_BASE_URL",
+)
 
 
-def set_common_env(monkeypatch):
+@pytest.fixture(autouse=True)
+def isolated_settings_env(monkeypatch):
+    for key in UNIFIED_ENV_KEYS:
+        monkeypatch.delenv(key, raising=False)
+
+
+def set_required_env(monkeypatch, *, provider: str = "gemini") -> None:
     monkeypatch.setenv("NOTION_TOKEN", "notion-token")
-    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
-    monkeypatch.setenv("GEMINI_MODEL", "gemini-model")
-    monkeypatch.setenv("PROXY_TOKEN", "proxy-token")
-    monkeypatch.setenv("CHAT_PROXY_URL", "https://proxy.example/v1")
-    monkeypatch.setenv("OPENAI_MODEL", "openai-model")
+    monkeypatch.setenv("AI_PROVIDER", provider)
+    monkeypatch.setenv("AI_API_KEY", "ai-key")
+    monkeypatch.setenv("AI_MODEL", "ai-model")
 
 
-def test_load_settings_supports_gemini_provider(monkeypatch):
-    set_common_env(monkeypatch)
-    monkeypatch.setenv("AI_PROVIDER", "gemini")
+def test_load_settings_supports_gemini_with_shared_fields(monkeypatch):
+    set_required_env(monkeypatch)
 
-    settings = load_settings()
+    settings = load_settings(env_file=None)
 
     assert settings.ai_provider == "gemini"
-    assert settings.gemini_model == "gemini-model"
+    assert settings.ai_api_key.get_secret_value() == "ai-key"
+    assert settings.ai_model == "ai-model"
+    assert settings.ai_base_url is None
+    assert settings.cache_namespace == "gemini-ai-model"
 
 
-def test_load_settings_supports_openai_provider(monkeypatch):
-    set_common_env(monkeypatch)
-    monkeypatch.setenv("AI_PROVIDER", "openai")
+def test_load_settings_supports_openai_official_endpoint(monkeypatch):
+    set_required_env(monkeypatch, provider="openai")
 
-    settings = load_settings()
+    settings = load_settings(env_file=None)
 
     assert settings.ai_provider == "openai"
-    assert settings.proxy_token == "proxy-token"
-    assert settings.chat_proxy_url == "https://proxy.example/v1"
-    assert settings.openai_model == "openai-model"
+    assert settings.ai_base_url is None
 
 
-def test_load_settings_rejects_unknown_provider(monkeypatch):
-    set_common_env(monkeypatch)
-    monkeypatch.setenv("AI_PROVIDER", "unknown")
+def test_load_settings_supports_openai_compatible_endpoint(monkeypatch):
+    set_required_env(monkeypatch, provider="openai")
+    monkeypatch.setenv("AI_BASE_URL", " https://proxy.example/v1 ")
 
-    with pytest.raises(ValueError, match="AI_PROVIDER"):
-        load_settings()
+    settings = load_settings(env_file=None)
 
-
-def test_load_settings_validates_selected_provider(monkeypatch):
-    set_common_env(monkeypatch)
-    monkeypatch.setenv("AI_PROVIDER", "openai")
-    monkeypatch.setenv("PROXY_TOKEN", "")
-
-    with pytest.raises(ValueError, match="PROXY_TOKEN"):
-        load_settings()
+    assert settings.ai_base_url == "https://proxy.example/v1"
 
 
-@pytest.fixture
-def isolated_environ(monkeypatch):
-    environ_copy = dict(os.environ)
-    monkeypatch.setattr(os, "environ", environ_copy)
-    return environ_copy
+@pytest.mark.parametrize("provider", ["", "unknown"])
+def test_load_settings_rejects_missing_or_unknown_provider(monkeypatch, provider):
+    set_required_env(monkeypatch)
+    if provider:
+        monkeypatch.setenv("AI_PROVIDER", provider)
+    else:
+        monkeypatch.delenv("AI_PROVIDER")
+
+    with pytest.raises(ValidationError, match="ai_provider"):
+        load_settings(env_file=None)
 
 
-def test_load_dotenv_parses_values_and_skips_noise(tmp_path: Path, isolated_environ):
+@pytest.mark.parametrize("key", ["NOTION_TOKEN", "AI_API_KEY", "AI_MODEL"])
+def test_load_settings_rejects_empty_required_values(monkeypatch, key):
+    set_required_env(monkeypatch)
+    monkeypatch.setenv(key, "   ")
+
+    with pytest.raises(ValidationError):
+        load_settings(env_file=None)
+
+
+def test_load_settings_rejects_base_url_for_gemini(monkeypatch):
+    set_required_env(monkeypatch)
+    monkeypatch.setenv("AI_BASE_URL", "https://proxy.example/v1")
+
+    with pytest.raises(ValidationError, match="AI_BASE_URL"):
+        load_settings(env_file=None)
+
+
+def test_load_settings_reads_dotenv_file(tmp_path: Path):
     env_file = tmp_path / ".env"
     env_file.write_text(
         "\n".join(
             [
-                "# comment line",
-                "",
-                "PLAIN_VALUE=hello",
-                'DOUBLE_QUOTED="quoted value"',
-                "SINGLE_QUOTED='single'",
-                "SPACED_KEY = spaced value ",
-                "no-equals-sign-line",
+                "NOTION_TOKEN=dotenv-notion-token",
+                "AI_PROVIDER=gemini",
+                "AI_API_KEY=dotenv-ai-key",
+                "AI_MODEL=dotenv-model",
             ]
         ),
         encoding="utf-8",
     )
 
-    load_dotenv(env_file)
+    settings = load_settings(env_file)
 
-    assert isolated_environ["PLAIN_VALUE"] == "hello"
-    assert isolated_environ["DOUBLE_QUOTED"] == "quoted value"
-    assert isolated_environ["SINGLE_QUOTED"] == "single"
-    assert isolated_environ["SPACED_KEY"] == "spaced value"
+    assert settings.notion_token.get_secret_value() == "dotenv-notion-token"
+    assert settings.ai_api_key.get_secret_value() == "dotenv-ai-key"
+    assert settings.ai_model == "dotenv-model"
 
 
-def test_load_dotenv_does_not_override_existing_env(tmp_path: Path, isolated_environ):
-    isolated_environ["EXISTING_KEY"] = "from-environment"
+def test_environment_values_override_dotenv(monkeypatch, tmp_path: Path):
     env_file = tmp_path / ".env"
-    env_file.write_text("EXISTING_KEY=from-file\n", encoding="utf-8")
+    env_file.write_text(
+        "\n".join(
+            [
+                "NOTION_TOKEN=dotenv-notion-token",
+                "AI_PROVIDER=gemini",
+                "AI_API_KEY=dotenv-ai-key",
+                "AI_MODEL=dotenv-model",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("AI_MODEL", "environment-model")
 
-    load_dotenv(env_file)
+    settings = load_settings(env_file)
 
-    assert isolated_environ["EXISTING_KEY"] == "from-environment"
+    assert settings.ai_model == "environment-model"
 
 
-def test_load_dotenv_ignores_missing_file(tmp_path: Path):
-    load_dotenv(tmp_path / "does-not-exist.env")
+def test_missing_dotenv_file_uses_environment(monkeypatch, tmp_path: Path):
+    set_required_env(monkeypatch)
+
+    settings = load_settings(tmp_path / "does-not-exist.env")
+
+    assert settings.ai_model == "ai-model"
+
+
+def test_settings_repr_does_not_expose_secrets():
+    settings = Settings(
+        _env_file=None,
+        notion_token="notion-secret",
+        ai_provider="gemini",
+        ai_api_key="ai-secret",
+        ai_model="ai-model",
+    )
+
+    representation = repr(settings)
+    assert "notion-secret" not in representation
+    assert "ai-secret" not in representation

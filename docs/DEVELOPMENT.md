@@ -1,39 +1,39 @@
-# Development
+# 개발
 
-## Setup
+## 설치
 
 ```powershell
 python -m pip install -e ".[dev]"
 ```
 
-Python 3.10 or later is required. LangChain provider dependencies are defined in `pyproject.toml`.
+Python 3.10 이상이 필요합니다. LangChain 제공자 의존성은 `pyproject.toml`에 정의되어 있습니다.
 
-## Tests
+## 테스트
 
-Run all tests:
+전체 테스트를 실행합니다.
 
 ```powershell
 python -m pytest
 ```
 
-The test suite mocks provider requests and verifies provider selection, agent output extraction, Markdown conversion, Notion chunking, and failure safety when AI organization fails.
+테스트 모음은 제공자 요청을 모의 처리하고 제공자 선택, 에이전트 출력 추출, Markdown 변환, Notion 단위 분할, AI 정리 실패 시의 안전성을 검증합니다.
 
-Because live API calls are not covered by unit tests, always verify a short prompt before running the full workflow.
+단위 테스트에는 실제 API 호출이 포함되지 않으므로 전체 작업 흐름을 실행하기 전에 항상 짧은 프롬프트로 연결을 확인하세요.
 
-## Run
+## 실행
 
 ```powershell
 python -m notion_auto_organizer --page-id "<PAGE_ID>"
 ```
 
-`--page-id` accepts either a bare page ID or a full Notion page URL. After `pip install -e .`, the `notion-auto-organizer` console command is also available.
+`--page-id`에는 페이지 ID 자체나 전체 Notion 페이지 URL을 입력할 수 있습니다. `pip install -e .` 실행 후에는 `notion-auto-organizer` 콘솔 명령도 사용할 수 있습니다.
 
-During execution, the original content is backed up, AI organization runs, and the Notion page is replaced only after the organized result succeeds. Original Markdown is saved under `backups/`, and the AI-generated result is saved under `posts/`.
+실행 중에는 원본 내용을 백업하고 AI 정리를 수행하며, 정리 결과가 성공한 후에만 Notion 페이지를 교체합니다. 원본 Markdown은 `backups/`에, AI가 생성한 결과는 `posts/`에 저장합니다.
 
-## Safety Rules
+## 안전 규칙
 
-- Do not commit `.env` files, tokens, or keys.
-- Run the first attempt on a test Notion page.
-- If the AI call fails, do not replace the existing Notion page.
-- Keep backup and output files out of source control.
-- When changing provider implementations, update the provider client and the related config/factory tests together.
+- `.env` 파일, 토큰, 키를 커밋하지 마세요.
+- 첫 실행에는 테스트용 Notion 페이지를 사용하세요.
+- AI 호출이 실패하면 기존 Notion 페이지를 교체하지 마세요.
+- 백업과 출력 파일을 소스 제어에서 제외하세요.
+- 제공자 구현을 변경할 때는 제공자 클라이언트와 관련 config/factory 테스트를 함께 갱신하세요.

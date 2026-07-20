@@ -1,36 +1,36 @@
-# Add Planning and Logging Rules
+# 계획 및 작업 로그 규칙 추가
 
-- **Status:** Completed
+- **상태:** 완료
 
-## Motivation
+## 동기
 
-Project changes need reproducible records that explain why work was requested, how an approved Plan was implemented, and how the result was validated.
+프로젝트 변경에는 작업 요청 이유, 승인된 계획의 구현 방법, 결과 검증 방법을 설명하는 재현 가능한 기록이 필요합니다.
 
-## Goal
+## 목표
 
-Establish mandatory, indexed Plan and Log workflows for every repository-changing task, including completion gates for code changes.
+코드 변경의 완료 조건을 포함해 저장소를 변경하는 모든 작업에 번호가 있는 필수 계획 및 작업 로그 흐름을 수립합니다.
 
-## Scope
+## 범위
 
-- Add Plan and Log operating documentation and templates.
-- Update `AGENTS.md` to require the workflow.
-- Record this documentation task in matching Plan and Log files.
-- Do not add Git staging or commit procedures.
-- Do not change application code or runtime behavior.
+- 계획 및 작업 로그 운영 문서와 템플릿을 추가합니다.
+- `AGENTS.md`에 해당 작업 흐름을 필수 규칙으로 추가합니다.
+- 이 문서 작업을 서로 대응하는 계획 및 작업 로그 파일에 기록합니다.
+- Git staging이나 commit 절차는 추가하지 않습니다.
+- 애플리케이션 코드나 런타임 동작은 변경하지 않습니다.
 
-## Steps
+## 단계
 
-1. Create the matching work Log in `logs/`.
-2. Add reusable Plan and Log templates.
-3. Document Plan lifecycle, numbering, logging, security, and completion rules.
-4. Link the new rules from `AGENTS.md`.
-5. Validate Markdown structure, cross-references, numbering, and changed-file consistency.
-6. Finalize the Log and then mark this Plan as Completed.
+1. `logs/`에 대응하는 작업 로그를 생성합니다.
+2. 재사용 가능한 계획 및 작업 로그 템플릿을 추가합니다.
+3. 계획 수명 주기, 번호 부여, 작업 로그, 보안, 완료 규칙을 문서화합니다.
+4. `AGENTS.md`에서 새 규칙을 연결합니다.
+5. Markdown 구조, 상호 참조, 번호, 변경 파일의 일관성을 검증합니다.
+6. 작업 로그를 마무리한 후 이 계획을 완료 상태로 표시합니다.
 
-## Validation
+## 검증
 
-- Confirm the Plan and Log use the same `001-add-planning-and-logging-rules` identifier.
-- Confirm all required template sections and lifecycle rules are present.
-- Confirm Git staging and commit procedures are absent.
-- Review the changed Markdown files and cross-references.
-- Do not run `pytest` because this task changes documentation only.
+- 계획과 작업 로그가 같은 `001-add-planning-and-logging-rules` 식별자를 사용하는지 확인합니다.
+- 필요한 모든 템플릿 섹션과 수명 주기 규칙이 있는지 확인합니다.
+- Git staging과 commit 절차가 없는지 확인합니다.
+- 변경한 Markdown 파일과 상호 참조를 검토합니다.
+- 문서만 변경하는 작업이므로 `pytest`를 실행하지 않습니다.

@@ -34,9 +34,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         settings = load_settings()
         organizer = NotionPageOrganizer(
-            NotionClient(settings.notion_token),
+            NotionClient(settings.notion_token.get_secret_value()),
             create_ai_client(settings),
-            cache_namespace=_cache_namespace(settings),
+            cache_namespace=settings.cache_namespace,
         )
         if args.refresh:
             organizer.ai_cache.clear()
@@ -49,11 +49,3 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Post saved: {result.post_path}")
     print(f"Blocks appended: {result.block_count}")
     return 0
-
-
-def _cache_namespace(settings) -> str:
-    if settings.ai_provider == "gemini":
-        return f"{settings.ai_provider}-{settings.gemini_model}"
-    if settings.ai_provider == "openai":
-        return f"{settings.ai_provider}-{settings.openai_model}"
-    raise ValueError(f"Unsupported AI_PROVIDER: {settings.ai_provider}")

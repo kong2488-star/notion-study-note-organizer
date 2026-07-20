@@ -1,51 +1,51 @@
-# Add Planning and Logging Rules Log
+# 계획 및 작업 로그 규칙 추가 작업 로그
 
-- **Plan number:** 001
-- **Plan path:** `plan/001-add-planning-and-logging-rules.md`
-- **Status:** Completed
-- **Started:** 2026-07-14
-- **Completed:** 2026-07-14
+- **계획 번호:** 001
+- **계획 경로:** `plan/001-add-planning-and-logging-rules.md`
+- **상태:** 완료
+- **시작일:** 2026-07-14
+- **완료일:** 2026-07-14
 
-## Work Summary
+## 작업 요약
 
-Added the approved indexed Plan and incremental Log workflow, reusable templates, operating documentation, and repository-level agent requirements. All documentation validation passed.
+승인된 번호 기반 계획과 점진적 작업 로그 흐름, 재사용 가능한 템플릿, 운영 문서, 저장소 수준 에이전트 요구사항을 추가했습니다. 모든 문서 검증을 통과했습니다.
 
-## Key Decisions and Rationale
+## 주요 결정과 근거
 
-- Use `plan/` and `logs/` with matching three-digit indexes and English kebab-case slugs so related records sort together and are easy to locate.
-- Require Logs for every repository-changing task, including documentation-only changes, because the approved project rule intentionally has no documentation exception.
-- Keep detailed lifecycle rules in dedicated planning and logging documents while `AGENTS.md` provides a concise mandatory entry point.
-- Exclude Git staging and commit procedures because they are outside the approved scope for this phase.
+- 관련 기록이 함께 정렬되고 쉽게 찾을 수 있도록 `plan/`과 `logs/`에 대응하는 세 자리 번호와 영문 kebab-case 슬러그를 사용합니다.
+- 승인된 프로젝트 규칙이 의도적으로 문서 예외를 두지 않으므로 문서 전용 변경을 포함한 모든 저장소 변경에 작업 로그를 요구합니다.
+- 자세한 수명 주기 규칙은 전용 계획 및 작업 로그 문서에 두고 `AGENTS.md`는 간결한 필수 진입점을 제공합니다.
+- Git staging과 commit 절차는 이 단계의 승인 범위 밖이므로 제외합니다.
 
-## Changed Files
+## 변경 파일
 
-- `plan/001-add-planning-and-logging-rules.md`: Created the approved work Plan with status In Progress.
-- `plan/TEMPLATE.md`: Added the required Plan metadata and five-section structure.
-- `logs/001-add-planning-and-logging-rules.md`: Created this incremental work Log.
-- `logs/TEMPLATE.md`: Added required incremental Log metadata and evidence sections.
-- `docs/planning.md`: Documented Plan numbering, approval lifecycle, execution, testing, and completion gates.
-- `docs/logging.md`: Documented Log creation, incremental updates, required evidence, security, and completion rules.
-- `AGENTS.md`: Added mandatory Plan and Log workflow references and completion gates.
+- `plan/001-add-planning-and-logging-rules.md`: 진행 중 상태의 승인된 작업 계획을 생성했습니다.
+- `plan/TEMPLATE.md`: 필수 계획 메타데이터와 다섯 개 섹션 구조를 추가했습니다.
+- `logs/001-add-planning-and-logging-rules.md`: 이 점진적 작업 로그를 생성했습니다.
+- `logs/TEMPLATE.md`: 필수 점진적 작업 로그 메타데이터와 근거 섹션을 추가했습니다.
+- `docs/planning.md`: 계획 번호 부여, 승인 수명 주기, 실행, 테스트, 완료 조건을 문서화했습니다.
+- `docs/logging.md`: 작업 로그 생성, 점진적 갱신, 필수 근거, 보안, 완료 규칙을 문서화했습니다.
+- `AGENTS.md`: 필수 계획 및 작업 로그 흐름 참조와 완료 조건을 추가했습니다.
 
-## Meaningful Commands and Results
+## 의미 있는 명령과 결과
 
-- `git status --short`: Could not run because `git` is not available on the current `PATH`.
-- Required-file and identifier validation: exited successfully; all seven expected files exist and the Plan and Log identifiers match `001-add-planning-and-logging-rules`.
-- Template-heading validation with `rg`: exited successfully; all five required Plan sections and all seven required Log evidence sections are present.
-- Lifecycle, completion-gate, and exclusion validation with `rg`: exited successfully; the Plan lifecycle and pytest gate are documented, and the operating docs and templates contain no Git staging or commit procedures.
+- `git status --short`: 현재 `PATH`에서 `git`을 찾을 수 없어 실행하지 못했습니다.
+- 필수 파일 및 식별자 검증: 성공적으로 종료했습니다. 예상한 파일 일곱 개가 모두 있고 계획과 작업 로그 식별자가 `001-add-planning-and-logging-rules`로 일치합니다.
+- `rg`를 사용한 템플릿 제목 검증: 성공적으로 종료했습니다. 계획의 필수 섹션 다섯 개와 작업 로그의 필수 근거 섹션 일곱 개가 모두 있습니다.
+- `rg`를 사용한 수명 주기, 완료 조건, 제외 사항 검증: 성공적으로 종료했습니다. 계획 수명 주기와 pytest 조건이 문서화됐고 운영 문서와 템플릿에는 Git staging이나 commit 절차가 없습니다.
 
-## Failures, Causes, and Resolutions
+## 실패, 원인, 해결 방법
 
-- Environment constraint: the shell could not find the `git` executable. Git-based diff validation will be replaced with direct file inspection and targeted content searches; no Git operation is required by this task.
+- 환경 제약: 셸에서 `git` 실행 파일을 찾을 수 없었습니다. 이 작업에는 Git 작업이 필요하지 않으므로 Git 기반 diff 검증을 직접 파일 검사와 대상 내용 검색으로 대체했습니다.
 
-## Validation Results
+## 검증 결과
 
-- Passed: Plan and Log use the same three-digit index and kebab-case slug.
-- Passed: required Plan and Log metadata, sections, lifecycle rules, and completion gates are present.
-- Passed: operating docs and templates exclude Git staging and commit procedures.
-- Passed: all documented paths and cross-referenced files exist.
-- Not run: `python -m pytest`, because only Markdown documentation changed and no runtime behavior was affected.
+- 통과: 계획과 작업 로그가 같은 세 자리 번호와 kebab-case 슬러그를 사용합니다.
+- 통과: 필수 계획 및 작업 로그 메타데이터, 섹션, 수명 주기 규칙, 완료 조건이 있습니다.
+- 통과: 운영 문서와 템플릿에 Git staging과 commit 절차가 없습니다.
+- 통과: 문서화된 모든 경로와 상호 참조 파일이 존재합니다.
+- 미실행: Markdown 문서만 변경하고 런타임 동작에 영향을 주지 않았으므로 `python -m pytest`를 실행하지 않았습니다.
 
-## Unresolved Issues and Follow-up Work
+## 해결되지 않은 문제와 후속 작업
 
-None.
+없음.

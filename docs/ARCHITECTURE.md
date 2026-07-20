@@ -1,10 +1,10 @@
-# Architecture
+# 아키텍처
 
-## Purpose
+## 목적
 
-This project reads rough developer study notes from a Notion page, converts the block tree into Markdown, organizes the content into a beginner-friendly Korean study document through a selected AI provider, and then replaces the page contents with the organized result.
+이 프로젝트는 Notion 페이지에서 정리되지 않은 개발 학습 메모를 읽고, 블록 트리를 Markdown으로 변환하고, 선택한 AI 제공자를 통해 입문자 친화적인 한국어 학습 문서로 내용을 정리한 뒤, 정리된 결과로 페이지 내용을 교체합니다.
 
-## Data Flow
+## 데이터 흐름
 
 ```text
 Notion page
@@ -17,17 +17,17 @@ Notion page
   -> NotionClient: archive existing children and append new blocks
 ```
 
-If the AI call or Markdown organization step fails, the archive step is not performed, so the existing Notion page content remains untouched.
+AI 호출이나 Markdown 정리 단계가 실패하면 보관 처리 단계가 실행되지 않으므로 기존 Notion 페이지 내용은 그대로 유지됩니다.
 
-## Module Boundaries
+## 모듈 경계
 
-- `notion.py`: handles Notion API requests, block tree loading, archiving, and append chunking.
-- `markdown_convert.py`: handles conversion between Notion blocks and Markdown.
-- `organizer.py`: coordinates backups, AI calls, output storage, and page replacement.
-- `ai_client.py`: defines the shared `AIClient` protocol, prompt, and agent output extraction.
-- `gemini_client.py`: implements the LangChain Gemini chat model and agent.
-- `openai_client.py`: implements the OpenAI-compatible proxy LangChain chat model and agent.
-- `ai_factory.py`: selects the provider implementation based on `AI_PROVIDER`.
-- `config.py`: loads `.env` values and validates provider-specific settings.
+- `notion.py`: Notion API 요청, 블록 트리 불러오기, 보관 처리, 추가 단위 분할을 담당합니다.
+- `markdown_convert.py`: Notion 블록과 Markdown 간 변환을 담당합니다.
+- `organizer.py`: 백업, AI 호출, 출력 저장, 페이지 교체를 조정합니다.
+- `ai_client.py`: 공통 `AIClient` 프로토콜, 프롬프트, 에이전트 출력 추출을 정의합니다.
+- `gemini_client.py`: LangChain Gemini 채팅 모델과 에이전트를 구현합니다.
+- `openai_client.py`: OpenAI 호환 LangChain 채팅 모델과 에이전트를 구현합니다.
+- `ai_factory.py`: `AI_PROVIDER`를 기준으로 제공자 구현을 선택합니다.
+- `config.py`: Pydantic Settings를 통해 `.env`를 읽고 공통 제공자 설정을 검증합니다.
 
-When adding a new provider, implement `AIClient.organize_markdown()` and keep the provider-specific client logic isolated inside that provider module. The `NotionPageOrganizer` should remain independent of the selected AI provider.
+새 제공자를 추가할 때는 `AIClient.organize_markdown()`을 구현하고 제공자별 클라이언트 로직을 해당 제공자 모듈 안에 격리하세요. `NotionPageOrganizer`는 선택된 AI 제공자와 독립적이어야 합니다.

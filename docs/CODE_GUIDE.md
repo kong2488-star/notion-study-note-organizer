@@ -61,7 +61,7 @@ __main__.py
 핵심 설계 포인트:
 
 - `organizer.py`는 Gemini인지 OpenAI인지 전혀 모릅니다. `AIClient`라는 Protocol(인터페이스)에만 의존하고, 실제 구현체는 `cli.py`가 `ai_factory`를 통해 주입합니다. 덕분에 새 AI provider를 추가해도 핵심 워크플로우 코드는 바뀌지 않습니다.
-- `config.py`, `http.py`, `cache.py`, `markdown_convert.py`, `notion.py`는 **표준 라이브러리만** 사용합니다. LangChain 같은 외부 의존성은 `gemini_client.py`/`openai_client.py` 두 파일에만 격리되어 있습니다.
+- `config.py`는 Pydantic Settings와 python-dotenv만 사용하고, provider SDK 의존성은 `gemini_client.py`/`openai_client.py` 두 파일에 격리되어 있습니다. `http.py`, `cache.py`, `markdown_convert.py`, `notion.py`는 표준 라이브러리만 사용합니다.
 
 ### 한 번 실행하면 일어나는 일 (파이프라인)
 
@@ -111,9 +111,9 @@ if __name__ == "__main__":
 ```python
 settings = load_settings()                        # .env → Settings
 organizer = NotionPageOrganizer(
-    NotionClient(settings.notion_token),          # Notion API 클라이언트 주입
+    NotionClient(settings.notion_token.get_secret_value()),
     create_ai_client(settings),                   # provider에 맞는 AI 클라이언트 주입
-    cache_namespace=_cache_namespace(settings),
+    cache_namespace=settings.cache_namespace,
 )
 if args.refresh:
     organizer.ai_cache.clear()
@@ -124,30 +124,21 @@ result = organizer.organize_page(args.page_id)
 
 `argv` 매개변수를 받는 이유: 테스트에서 `cli.main(["--page-id", "..."])`처럼 인자를 직접 넘길 수 있게 하기 위해서입니다. `None`이면 argparse가 `sys.argv`를 사용합니다.
 
-**`_cache_namespace(settings)`** — 캐시 파일명 접두사를 만듭니다. `"gemini-gemini-3.5-flash"`처럼 provider와 모델명을 합칩니다. 모델을 바꾸면 네임스페이스가 달라지므로, **다른 모델의 캐시 응답을 잘못 재사용하는 일이 없습니다.**
+**`settings.cache_namespace`** — `"gemini-gemini-2.5-flash"`처럼 provider와 모델명을 합친 캐시 파일명 접두사입니다. 모델을 바꾸면 다른 모델의 응답을 잘못 재사용하지 않습니다.
 
 ### `config.py` — 환경변수 로딩과 검증
 
-**`Settings`** — `@dataclass(frozen=True)`로 선언된 불변 설정 객체입니다. `frozen=True`라서 생성 후 값 변경이 불가능하며, 설정이 실행 중에 바뀌지 않음을 코드 수준에서 보장합니다.
+**`Settings`** — Pydantic Settings 모델입니다. python-dotenv를 통해 `.env`를 읽고 타입, 필수값, provider별 제약을 검증합니다. 실제 시스템 환경변수가 `.env`보다 우선합니다.
 
 | 필드 | 환경변수 | 용도 |
 |---|---|---|
 | `notion_token` | `NOTION_TOKEN` | Notion API 토큰 (항상 필수) |
-| `ai_provider` | `AI_PROVIDER` | `gemini`(기본) 또는 `openai` |
-| `gemini_api_key` | `GEMINI_API_KEY` | gemini 선택 시 필수 |
-| `gemini_model` | `GEMINI_MODEL` | 기본값 `gemini-3.5-flash` |
-| `proxy_token` | `PROXY_TOKEN` | openai 선택 시 필수 |
-| `chat_proxy_url` | `CHAT_PROXY_URL` | openai 선택 시 필수 |
-| `openai_model` | `OPENAI_MODEL` | openai 선택 시 필수 |
+| `ai_provider` | `AI_PROVIDER` | 필수, `gemini` 또는 `openai` |
+| `ai_api_key` | `AI_API_KEY` | 선택한 provider의 API 키 (필수, 로그에서 마스킹) |
+| `ai_model` | `AI_MODEL` | 선택한 모델 (필수) |
+| `ai_base_url` | `AI_BASE_URL` | OpenAI-compatible endpoint에만 선택적으로 사용 |
 
-**`load_dotenv(path=Path(".env"))`** — 외부 라이브러리(python-dotenv) 없이 `.env` 파일을 직접 파싱합니다. 규칙:
-
-- 빈 줄, `#` 주석, `=`가 없는 줄은 건너뜀
-- 첫 번째 `=` 기준으로 키/값 분리 (값 안에 `=`가 있어도 안전)
-- 값 양끝의 따옴표(`"`, `'`) 제거
-- **이미 존재하는 환경변수는 덮어쓰지 않음** — 셸에서 `NOTION_TOKEN=xxx python -m ...`처럼 직접 지정한 값이 `.env`보다 우선하게 하는 관례입니다.
-
-**`load_settings() -> Settings`** — `load_dotenv()` 실행 후 환경변수를 모아 검증합니다. 검증은 provider별로 다릅니다: `gemini`면 `GEMINI_API_KEY`만, `openai`면 `PROXY_TOKEN`/`CHAT_PROXY_URL`/`OPENAI_MODEL` 세 개를 요구합니다. 누락된 변수를 **하나씩 알려주지 않고 전부 모아서** `Missing required environment values: A, B` 형태로 한 번에 알려줍니다 (사용자가 여러 번 실행해보지 않아도 되게).
+**`load_settings(env_file=Path(".env")) -> Settings`** — Pydantic Settings가 dotenv 파일과 프로세스 환경을 결합하고 검증합니다. provider와 모델에는 기본값이 없으며 Gemini에서 `AI_BASE_URL`을 설정하면 오류가 발생합니다.
 
 ### `organizer.py` — 핵심 워크플로우
 
@@ -200,10 +191,11 @@ provider들이 공유하는 세 가지가 들어 있습니다: 시스템 프롬�
 
 ```python
 def create_ai_client(settings: Settings) -> AIClient:
+    api_key = settings.ai_api_key.get_secret_value()
     if settings.ai_provider == "gemini":
-        return GeminiClient(settings.gemini_api_key, settings.gemini_model)
+        return GeminiClient(api_key, settings.ai_model)
     if settings.ai_provider == "openai":
-        return OpenAIClient(settings.proxy_token, settings.chat_proxy_url, settings.openai_model)
+        return OpenAIClient(api_key, settings.ai_model, base_url=settings.ai_base_url)
     raise ValueError(f"Unsupported AI_PROVIDER: {settings.ai_provider}")
 ```
 
@@ -216,8 +208,8 @@ def create_ai_client(settings: Settings) -> AIClient:
 | | `GeminiClient` | `OpenAIClient` |
 |---|---|---|
 | 챗 모델 | `ChatGoogleGenerativeAI` | `ChatOpenAI` |
-| 인증 | `google_api_key` | `api_key`(proxy_token) + `base_url`(proxy URL) |
-| 용도 | Google Gemini 직접 호출 | OpenAI **호환 프록시** 엔드포인트 호출 |
+| 인증 | `google_api_key` | `api_key` + 선택적 `base_url` |
+| 용도 | Google Gemini 직접 호출 | OpenAI 공식 또는 호환 endpoint 호출 |
 
 공통 구조 (생성자):
 
@@ -353,14 +345,15 @@ requests 같은 외부 라이브러리 없이 표준 라이브러리 `urllib`만
 | 테스트 파일 | 검증 내용 |
 |---|---|
 | `test_organizer.py` | **가장 중요한 안전성 테스트.** AI가 실패하면 페이지가 교체되지 않고(archive 호출 없음) 백업 파일은 남는지, 성공 시 백업/post 저장과 페이지 교체가 모두 일어나는지, URL이 모든 Notion 호출 전에 정규화되는지, 잘못된 page_id가 Notion 호출 없이 거부되는지, `slugify` 케이스들을 검증합니다. |
-| `test_cli.py` | `main` 성공 시 결과 출력, `--refresh`가 캐시 clear를 호출하는지, 설정 실패 시 종료 코드 1과 `error:` 메시지, `--page-id` 누락 시 실패, provider별 `_cache_namespace` 문자열을 검증합니다. |
-| `test_config.py` | gemini/openai 각각의 설정 로딩, 미지원 provider 거부, 선택한 provider의 필수 변수 검증, `load_dotenv`의 파싱 규칙(따옴표/주석/`=` 없는 줄)과 기존 환경변수 미덮어쓰기를 검증합니다. |
+| `test_cli.py` | `main` 성공 시 결과 출력, `--refresh`가 캐시 clear를 호출하는지, 설정 실패 시 종료 코드 1과 `error:` 메시지, `--page-id` 누락 시 실패, provider별 cache namespace를 검증합니다. |
+| `test_config.py` | 공통 dotenv 설정, 환경변수 우선순위, 필수값과 provider 검증, secret 마스킹 및 기존 변수명 미지원을 검증합니다. |
+| `test_ai_factory.py` | 공통 API key, 모델 및 선택적 base URL이 provider 구현체로 전달되는지 검증합니다. |
 | `test_notion.py` | `append_children`이 205개 블록을 [100, 100, 5]로 나누는지, 커서 페이지네이션이 `next_cursor`를 따라가는지, 제목 추출과 page_id fallback, `normalize_page_id`의 ID/UUID/URL 처리와 잘못된 값 거부를 검증합니다. |
 | `test_markdown_convert.py` | 블록→Markdown 기본 변환, Markdown→블록의 타입 판별과 코드 언어 정규화(js→javascript), 긴 문단의 분할을 검증합니다. |
 | `test_cache.py` | 캐시 hit/miss 동작과, 같은 원본으로 두 번 실행하면 AI가 한 번만 호출되는지(호출 횟수 카운팅)를 검증합니다. |
 | `test_http.py` | 쿼리 인코딩과 `None` 값 제거, JSON body와 Content-Type 자동 설정, `HTTPError`/`URLError`가 응답 본문을 포함한 `HttpError`로 래핑되는지 검증합니다. |
 | `test_gemini_client.py` | `ChatGoogleGenerativeAI`와 `create_agent`에 전달되는 인자(모델명, API 키, temperature 0.3, tools=[])를 캡처해 검증합니다. |
-| `test_openai_client.py` | `ChatOpenAI` 인자(proxy_token, base_url, 모델명)와 리스트형 content(`{"text": ...}`) 추출을 검증합니다. |
+| `test_openai_client.py` | `ChatOpenAI`의 공통 API key, 모델, 선택적 base URL과 리스트형 content(`{"text": ...}`) 추출을 검증합니다. |
 
 실행: `python -m pytest`
 
@@ -370,7 +363,7 @@ requests 같은 외부 라이브러리 없이 표준 라이브러리 `urllib`만
 
 ### `pyproject.toml`
 
-- **의존성**: `langchain`, `langchain-google-genai`, `langchain-openai` 세 개뿐입니다 (Notion API는 표준 라이브러리로 직접 호출). 개발용(`[dev]`)으로 `pytest`, `ruff` 추가.
+- **의존성**: LangChain provider 패키지와 환경 설정용 `pydantic`, `pydantic-settings`, `python-dotenv`를 사용합니다. Notion API는 표준 라이브러리로 직접 호출하며 개발용(`[dev]`)으로 `pytest`, `ruff`를 추가합니다.
 - **`[project.scripts]`**: `notion-auto-organizer = "notion_auto_organizer.cli:main"` — 설치하면 콘솔 명령이 생기는 부분입니다.
 - **도구 설정**: pytest는 `tests/`만 수집, ruff는 줄 길이 100 / Python 3.10 기준 / E·F·I·W·UP·B 규칙 활성화.
 - 요구 Python 버전: **3.10 이상**.
@@ -378,7 +371,7 @@ requests 같은 외부 라이브러리 없이 표준 라이브러리 `urllib`만
 ### `.env.example`
 
 `.env`를 만들 때 복사하는 템플릿입니다. 실제 `.env`는 `.gitignore`에 포함되어 커밋되지 않습니다.
-(참고: `EMBEDDING_PROXY_URL`, `OPENAI_EMBEDDING_MODEL`은 향후 기능을 위해 예약된 변수로, 현재 코드에서는 사용하지 않습니다.)
+필수 공통 설정 네 개와 OpenAI-compatible endpoint에만 사용하는 선택적 `AI_BASE_URL`을 안내합니다.
 
 ### `.github/workflows/ci.yml`
 

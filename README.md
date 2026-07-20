@@ -15,19 +15,14 @@ Notion page의 개발 공부 메모를 읽고 LangChain agent로 입문-초급 �
 ```env
 NOTION_TOKEN=
 AI_PROVIDER=gemini
+AI_API_KEY=
+AI_MODEL=
 
-GEMINI_API_KEY=
-GEMINI_MODEL=
-
-PROXY_TOKEN=
-CHAT_PROXY_URL=
-OPENAI_MODEL=
-
-EMBEDDING_PROXY_URL=
-OPENAI_EMBEDDING_MODEL=
+# OpenAI-compatible endpoint를 사용할 때만 설정
+# AI_BASE_URL=https://your-proxy.example/v1
 ```
 
-Gemini는 `GEMINI_API_KEY`와 `GEMINI_MODEL`을 사용합니다. OpenAI-compatible proxy는 `PROXY_TOKEN`, `CHAT_PROXY_URL`, `OPENAI_MODEL`을 사용합니다. Embedding 설정은 현재 기능에서 사용하지 않습니다.
+`AI_PROVIDER`는 필수이며 `gemini` 또는 `openai`를 지정합니다. OpenAI 공식 API는 `AI_BASE_URL` 없이 사용하고, 호환 endpoint를 사용할 때만 해당 값을 추가합니다.
 
 ## Installation
 

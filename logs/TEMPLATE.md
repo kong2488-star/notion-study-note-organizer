@@ -1,35 +1,35 @@
-# Task Title Log
+# 작업 제목 로그
 
-- **Plan number:** NNN
-- **Plan path:** `plan/NNN-task-slug.md`
-- **Status:** In Progress
-- **Started:** YYYY-MM-DD
-- **Completed:** None
+- **계획 번호:** NNN
+- **계획 경로:** `plan/NNN-task-slug.md`
+- **상태:** 진행 중
+- **시작일:** YYYY-MM-DD
+- **완료일:** 없음
 
-## Work Summary
+## 작업 요약
 
-Summarize the implementation and its current state.
+구현 내용과 현재 상태를 요약합니다.
 
-## Key Decisions and Rationale
+## 주요 결정과 근거
 
-Record consequential implementation decisions and brief reasons. Write `None` when there were no such decisions.
+구현에 영향을 준 결정과 간단한 이유를 기록합니다. 해당 사항이 없으면 `없음`이라고 작성합니다.
 
-## Changed Files
+## 변경 파일
 
-List changed files and briefly describe each change. Write `None` when no files have changed yet.
+변경한 파일과 각 변경 내용을 간단히 나열합니다. 변경 파일이 아직 없으면 `없음`이라고 작성합니다.
 
-## Meaningful Commands and Results
+## 의미 있는 명령과 결과
 
-Record only commands useful for reproduction or validation, including their exit status and a concise result. Write `None` when no meaningful commands were run.
+종료 상태와 간결한 결과를 포함해 재현이나 검증에 필요한 명령만 기록합니다. 의미 있는 명령을 실행하지 않았다면 `없음`이라고 작성합니다.
 
-## Failures, Causes, and Resolutions
+## 실패, 원인, 해결 방법
 
-Record meaningful failures, their causes, and how they were resolved. Write `None` when there were no meaningful failures.
+의미 있는 실패와 원인, 해결 방법을 기록합니다. 해당 사항이 없으면 `없음`이라고 작성합니다.
 
-## Validation Results
+## 검증 결과
 
-Record the final validation evidence and whether each required check passed. Write `None` until validation has occurred.
+최종 검증 근거와 각 검사의 통과 여부를 기록합니다. 검증 전에는 `없음`이라고 작성합니다.
 
-## Unresolved Issues and Follow-up Work
+## 해결되지 않은 문제와 후속 작업
 
-Record remaining issues and follow-up work. Write `None` when nothing remains.
+남은 문제와 후속 작업을 기록합니다. 해당 사항이 없으면 `없음`이라고 작성합니다.
