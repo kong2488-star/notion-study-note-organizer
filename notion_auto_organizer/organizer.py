@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .ai import AIClient
 from .cache import AIResponseCache
+from .exceptions import AIClientError, NotionError, OrganizationError
 from .markdown_convert import blocks_to_markdown, markdown_to_blocks
 from .notion import NotionClient, normalize_page_id
 
@@ -43,7 +44,7 @@ class NotionPageOrganizer:
             title = self.notion.get_page_title(page_id)
             blocks = self.notion.list_block_children_tree(page_id)
         except Exception as exc:
-            raise RuntimeError(f"[Notion 읽기] 페이지 조회 실패 ({page_id}): {exc}") from exc
+            raise NotionError(f"[Notion 읽기] 페이지 조회 실패 ({page_id}): {exc}") from exc
 
         original_markdown = blocks_to_markdown(blocks)
 
@@ -56,33 +57,33 @@ class NotionPageOrganizer:
             backup_path = self.backups_dir / f"{safe_title}-{timestamp}.md"
             backup_path.write_text(original_markdown, encoding="utf-8")
         except Exception as exc:
-            raise RuntimeError(f"[백업 저장] 백업 파일 쓰기 실패: {exc}") from exc
+            raise OrganizationError(f"[백업 저장] 백업 파일 쓰기 실패: {exc}") from exc
 
         organized_markdown = self.ai_cache.get(original_markdown)
         if organized_markdown is None:
             try:
                 organized_markdown = self.ai_client.organize_markdown(original_markdown)
             except Exception as exc:
-                raise RuntimeError(f"[AI 정리] AI 응답 실패: {exc}") from exc
+                raise AIClientError(f"[AI 정리] AI 응답 실패: {exc}") from exc
             self.ai_cache.set(original_markdown, organized_markdown)
 
         try:
             post_path = self.posts_dir / f"{safe_title}-organized.md"
             post_path.write_text(organized_markdown, encoding="utf-8")
         except Exception as exc:
-            raise RuntimeError(f"[결과 저장] 정리 파일 쓰기 실패: {exc}") from exc
+            raise OrganizationError(f"[결과 저장] 정리 파일 쓰기 실패: {exc}") from exc
 
         new_blocks = markdown_to_blocks(organized_markdown)
 
         try:
             self.notion.archive_children(page_id)
         except Exception as exc:
-            raise RuntimeError(f"[Notion 쓰기] 기존 블록 보관 실패: {exc}") from exc
+            raise NotionError(f"[Notion 쓰기] 기존 블록 보관 실패: {exc}") from exc
 
         try:
             self.notion.append_children(page_id, new_blocks)
         except Exception as exc:
-            raise RuntimeError(f"[Notion 쓰기] 새 블록 추가 실패: {exc}") from exc
+            raise NotionError(f"[Notion 쓰기] 새 블록 추가 실패: {exc}") from exc
 
         return OrganizeResult(
             title=title,

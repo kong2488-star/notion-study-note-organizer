@@ -31,6 +31,7 @@ include = ["notion_auto_organizer*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "--basetemp=.pytest_tmp"
 
 [tool.ruff]
 line-length = 100

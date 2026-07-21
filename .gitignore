@@ -9,3 +9,4 @@ cache/
 agent.md
 .claude/settings.local.json
 .claude/hooks/log/
+.pytest_tmp/

@@ -42,15 +42,14 @@ python -m pytest
 
 ## Run
 
-```powershell
-python -m notion_auto_organizer --page-id "NOTION_PAGE_ID"
-```
-
-`pip install -e .` 후에는 콘솔 명령으로도 실행할 수 있습니다. `--page-id`에는 페이지 ID 또는 Notion page URL을 그대로 넣을 수 있습니다.
+`pip install -e .` 후 콘솔 명령으로 실행합니다. 페이지 ID 또는 Notion page URL을 그대로 넣을 수 있습니다.
 
 ```powershell
-notion-auto-organizer --page-id "https://www.notion.so/workspace/페이지제목-1a2b3c..."
+notion-auto-organizer "https://www.notion.so/workspace/페이지제목-1a2b3c..."
+notion-auto-organizer "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d"
 ```
+
+캐시된 AI 응답을 무시하고 다시 정리하려면 `--refresh`를 추가합니다. 오류 발생 시 전체 traceback을 보려면 `--debug`를 추가합니다.
 
 실행 순서는 원본 백업, AI 정리, 결과 저장, Notion page 교체입니다.
 
@@ -61,3 +60,21 @@ notion-auto-organizer --page-id "https://www.notion.so/workspace/페이지제목
 - `.env`: 실제 token과 key를 저장하며 Git에 포함하지 않습니다.
 
 AI 호출 또는 정리 결과 생성에 실패하면 기존 Notion page를 교체하지 않습니다. 처음에는 테스트용 page에서 실행하세요.
+
+## Troubleshooting
+
+**`[Notion 읽기] 페이지 조회 실패: Not Found`**
+Integration이 해당 페이지에 연결되지 않은 경우입니다.
+1. Notion에서 해당 페이지 열기
+2. 우측 상단 `···` → **연결 추가** → `NOTION_TOKEN`에 해당하는 integration 선택
+
+**`notion-auto-organizer` 명령어를 찾을 수 없음 (Windows)**
+Python user Scripts 디렉토리가 PATH에 없는 경우입니다.
+```powershell
+[System.Environment]::SetEnvironmentVariable(
+  "PATH",
+  "$env:PATH;$env:APPDATA\Python\Python314\Scripts",
+  "User"
+)
+```
+설정 후 터미널을 재시작하세요.

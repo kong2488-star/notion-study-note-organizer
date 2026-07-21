@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from .schema import OrganizedNote, render_markdown
 
@@ -23,6 +23,7 @@ NOTE_ORGANIZER_PROMPT = """당신은 입문자 친화적인 한국어 개발 학
 """
 
 
+@runtime_checkable
 class AIClient(Protocol):
     def organize_markdown(self, markdown: str) -> str:
         """Turn rough Markdown notes into organized study notes."""

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from notion_auto_organizer.exceptions import AIClientError
 from notion_auto_organizer.organizer import NotionPageOrganizer, slugify
 
 PAGE_ID = "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d"
@@ -65,7 +66,7 @@ def test_ai_failure_does_not_replace_notion_page(tmp_path: Path):
     notion = FakeNotion()
     organizer = make_organizer(notion, FailingAI(), tmp_path)
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(AIClientError):
         organizer.organize_page(PAGE_ID)
 
     assert not notion.archived
