@@ -1,4 +1,4 @@
-from notion_auto_organizer import ai_factory
+from notion_auto_organizer.ai import factory as ai_factory
 from notion_auto_organizer.config import Settings
 
 

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from .ai_client import AIClient
+from .ai import AIClient
 from .cache import AIResponseCache
 from .markdown_convert import blocks_to_markdown, markdown_to_blocks
 from .notion import NotionClient, normalize_page_id

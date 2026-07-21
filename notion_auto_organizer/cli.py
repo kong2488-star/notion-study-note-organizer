@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from .ai_factory import create_ai_client
+from .ai import create_ai_client
 from .config import load_settings
 from .notion import NotionClient
 from .organizer import NotionPageOrganizer

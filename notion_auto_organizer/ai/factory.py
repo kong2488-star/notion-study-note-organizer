@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from .ai_client import AIClient
-from .config import Settings
-from .gemini_client import GeminiClient
-from .openai_client import OpenAIClient
+from .client import AIClient
+from ..config import Settings
+from .gemini import GeminiClient
+from .openai import OpenAIClient
 
 
 def create_ai_client(settings: Settings) -> AIClient:

@@ -24,11 +24,12 @@ AI 호출이나 정리 단계가 실패하면 Notion 페이지를 교체하지 �
 - `notion_auto_organizer/markdown_convert.py`: Notion 블록과 Markdown 간 변환을 담당합니다.
 - `notion_auto_organizer/organizer.py`: 백업, AI 정리, 출력, 페이지 교체 작업 흐름을 담당합니다.
 - `notion_auto_organizer/cache.py`: 원본 Markdown 기준 AI 응답 파일 캐시입니다. 같은 입력에 대한 재호출을 막습니다.
-- `notion_auto_organizer/ai_client.py`: 공통 `AIClient` 프로토콜, 프롬프트, 구조화 응답 실행 로직을 정의합니다.
-- `notion_auto_organizer/note_schema.py`: agent 응답을 고정하는 Pydantic 블록 스키마(`OrganizedNote`)와 Markdown 렌더러를 정의합니다.
-- `notion_auto_organizer/gemini_client.py`: LangChain Gemini 제공자 구현입니다.
-- `notion_auto_organizer/openai_client.py`: LangChain OpenAI 호환 제공자 구현입니다.
-- `notion_auto_organizer/ai_factory.py`: `AI_PROVIDER`를 기준으로 제공자를 선택합니다.
+- `notion_auto_organizer/ai/__init__.py`: `ai` 서브패키지의 공개 API를 정의합니다.
+- `notion_auto_organizer/ai/client.py`: 공통 `AIClient` 프로토콜, 프롬프트, 구조화 응답 실행 로직을 정의합니다.
+- `notion_auto_organizer/ai/schema.py`: agent 응답을 고정하는 Pydantic 블록 스키마(`OrganizedNote`)와 Markdown 렌더러를 정의합니다.
+- `notion_auto_organizer/ai/gemini.py`: LangChain Gemini 제공자 구현입니다.
+- `notion_auto_organizer/ai/openai.py`: LangChain OpenAI 호환 제공자 구현입니다.
+- `notion_auto_organizer/ai/factory.py`: `AI_PROVIDER`를 기준으로 제공자를 선택합니다.
 - `notion_auto_organizer/config.py`: Pydantic 기반 `.env` 불러오기와 공통 AI 설정 검증을 담당합니다.
 
 ## 문서

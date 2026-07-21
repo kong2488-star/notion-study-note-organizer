@@ -1,6 +1,6 @@
-from notion_auto_organizer import gemini_client
-from notion_auto_organizer.gemini_client import GeminiClient
-from notion_auto_organizer.note_schema import HeadingBlock, OrganizedNote
+from notion_auto_organizer.ai import gemini as gemini_client
+from notion_auto_organizer.ai.gemini import GeminiClient
+from notion_auto_organizer.ai.schema import HeadingBlock, OrganizedNote
 
 
 class FakeAgent:

@@ -1,5 +1,5 @@
 from notion_auto_organizer.markdown_convert import markdown_to_blocks
-from notion_auto_organizer.note_schema import (
+from notion_auto_organizer.ai.schema import (
     BulletedListItemBlock,
     CodeBlock,
     DividerBlock,

@@ -1,7 +1,7 @@
 import pytest
 
-from notion_auto_organizer.ai_client import organize_with_agent
-from notion_auto_organizer.note_schema import HeadingBlock, OrganizedNote, ParagraphBlock
+from notion_auto_organizer.ai.client import organize_with_agent
+from notion_auto_organizer.ai.schema import HeadingBlock, OrganizedNote, ParagraphBlock
 
 
 class FakeAgent:

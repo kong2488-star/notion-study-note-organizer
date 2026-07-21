@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from .note_schema import OrganizedNote, render_markdown
+from .schema import OrganizedNote, render_markdown
 
 NOTE_ORGANIZER_PROMPT = """당신은 입문자 친화적인 한국어 개발 학습 노트를 다듬는 편집자입니다.
 사용자가 대충 적은 Notion 메모를 구조화된 블록 목록으로 다시 정리하세요.
