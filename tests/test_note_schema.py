@@ -1,4 +1,3 @@
-from notion_auto_organizer.markdown_convert import markdown_to_blocks
 from notion_auto_organizer.ai.schema import (
     BulletedListItemBlock,
     CodeBlock,
@@ -11,6 +10,7 @@ from notion_auto_organizer.ai.schema import (
     TodoBlock,
     render_markdown,
 )
+from notion_auto_organizer.markdown_convert import markdown_to_blocks
 
 
 def test_render_markdown_single_heading():

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from .client import AIClient
 from ..config import Settings
+from .client import AIClient
 from .gemini import GeminiClient
 from .openai import OpenAIClient
 

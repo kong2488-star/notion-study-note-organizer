@@ -1,6 +1,6 @@
 from notion_auto_organizer.ai import openai as openai_client
-from notion_auto_organizer.ai.schema import HeadingBlock, OrganizedNote
 from notion_auto_organizer.ai.openai import OpenAIClient
+from notion_auto_organizer.ai.schema import HeadingBlock, OrganizedNote
 
 
 class FakeAgent:
