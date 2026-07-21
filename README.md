@@ -61,3 +61,4 @@ notion-auto-organizer --page-id "https://www.notion.so/workspace/페이지제목
 - `.env`: 실제 token과 key를 저장하며 Git에 포함하지 않습니다.
 
 AI 호출 또는 정리 결과 생성에 실패하면 기존 Notion page를 교체하지 않습니다. 처음에는 테스트용 page에서 실행하세요.
+# no-op test comment 1784615846
