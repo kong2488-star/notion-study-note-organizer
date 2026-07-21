@@ -15,8 +15,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "--page-id",
-        required=True,
+        "page_id",
         help="Notion page ID or page URL to read and replace.",
     )
     parser.add_argument(

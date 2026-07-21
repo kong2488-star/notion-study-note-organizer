@@ -23,10 +23,10 @@ python -m pytest
 ## 실행
 
 ```powershell
-python -m notion_auto_organizer --page-id "<PAGE_ID>"
+notion-auto-organizer "<PAGE_ID>"
 ```
 
-`--page-id`에는 페이지 ID 자체나 전체 Notion 페이지 URL을 입력할 수 있습니다. `pip install -e .` 실행 후에는 `notion-auto-organizer` 콘솔 명령도 사용할 수 있습니다.
+페이지 ID 자체나 전체 Notion 페이지 URL을 입력할 수 있습니다.
 
 실행 중에는 원본 내용을 백업하고 AI 정리를 수행하며, 정리 결과가 성공한 후에만 Notion 페이지를 교체합니다. 원본 Markdown은 `backups/`에, AI가 생성한 결과는 `posts/`에 저장합니다.
 

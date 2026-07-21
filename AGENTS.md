@@ -96,13 +96,13 @@ python -m pytest
 테스트용 Notion 페이지를 정리합니다.
 
 ```powershell
-python -m notion_auto_organizer --page-id "<PAGE_ID>"
+notion-auto-organizer "<PAGE_ID>"
 ```
 
 캐시된 AI 응답을 무시하고 다시 정리하려면 `--refresh`를 추가하세요.
 
 ```powershell
-python -m notion_auto_organizer --page-id "<PAGE_ID>" --refresh
+notion-auto-organizer "<PAGE_ID>" --refresh
 ```
 
 전체 Notion 페이지를 전송하기 전에 짧은 제공자 프롬프트를 실행하세요. 작업이 성공하면 페이지 내용이 교체되므로 첫 실행에는 테스트 페이지를 사용하세요.

@@ -58,7 +58,7 @@ def patched_cli(monkeypatch):
 
 
 def test_main_success_prints_result(patched_cli, capsys):
-    exit_code = cli.main(["--page-id", PAGE_ID])
+    exit_code = cli.main([PAGE_ID])
 
     assert exit_code == 0
     out = capsys.readouterr().out
@@ -70,7 +70,7 @@ def test_main_success_prints_result(patched_cli, capsys):
 
 
 def test_main_refresh_clears_cache(patched_cli):
-    cli.main(["--page-id", PAGE_ID, "--refresh"])
+    cli.main([PAGE_ID, "--refresh"])
 
     assert patched_cli.instances[0].ai_cache.cleared
 
@@ -82,7 +82,7 @@ def test_main_exits_with_error_when_settings_fail(monkeypatch, capsys):
     monkeypatch.setattr(cli, "load_settings", failing_settings)
 
     with pytest.raises(SystemExit) as excinfo:
-        cli.main(["--page-id", PAGE_ID])
+        cli.main([PAGE_ID])
 
     assert excinfo.value.code == 1
     assert "error: Missing required environment values" in capsys.readouterr().err
@@ -92,7 +92,7 @@ def test_page_id_is_required(capsys):
     with pytest.raises(SystemExit):
         cli.main([])
 
-    assert "--page-id" in capsys.readouterr().err
+    assert "page_id" in capsys.readouterr().err
 
 
 def test_settings_namespace_per_provider():
