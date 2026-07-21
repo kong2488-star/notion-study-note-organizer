@@ -38,8 +38,13 @@ class NotionPageOrganizer:
 
     def organize_page(self, page_id: str) -> OrganizeResult:
         page_id = normalize_page_id(page_id)
-        title = self.notion.get_page_title(page_id)
-        blocks = self.notion.list_block_children_tree(page_id)
+
+        try:
+            title = self.notion.get_page_title(page_id)
+            blocks = self.notion.list_block_children_tree(page_id)
+        except Exception as exc:
+            raise RuntimeError(f"[Notion 읽기] 페이지 조회 실패 ({page_id}): {exc}") from exc
+
         original_markdown = blocks_to_markdown(blocks)
 
         safe_title = slugify(title)
@@ -47,19 +52,37 @@ class NotionPageOrganizer:
         self.backups_dir.mkdir(parents=True, exist_ok=True)
         self.posts_dir.mkdir(parents=True, exist_ok=True)
 
-        backup_path = self.backups_dir / f"{safe_title}-{timestamp}.md"
-        backup_path.write_text(original_markdown, encoding="utf-8")
+        try:
+            backup_path = self.backups_dir / f"{safe_title}-{timestamp}.md"
+            backup_path.write_text(original_markdown, encoding="utf-8")
+        except Exception as exc:
+            raise RuntimeError(f"[백업 저장] 백업 파일 쓰기 실패: {exc}") from exc
 
         organized_markdown = self.ai_cache.get(original_markdown)
         if organized_markdown is None:
-            organized_markdown = self.ai_client.organize_markdown(original_markdown)
+            try:
+                organized_markdown = self.ai_client.organize_markdown(original_markdown)
+            except Exception as exc:
+                raise RuntimeError(f"[AI 정리] AI 응답 실패: {exc}") from exc
             self.ai_cache.set(original_markdown, organized_markdown)
-        post_path = self.posts_dir / f"{safe_title}-organized.md"
-        post_path.write_text(organized_markdown, encoding="utf-8")
+
+        try:
+            post_path = self.posts_dir / f"{safe_title}-organized.md"
+            post_path.write_text(organized_markdown, encoding="utf-8")
+        except Exception as exc:
+            raise RuntimeError(f"[결과 저장] 정리 파일 쓰기 실패: {exc}") from exc
 
         new_blocks = markdown_to_blocks(organized_markdown)
-        self.notion.archive_children(page_id)
-        self.notion.append_children(page_id, new_blocks)
+
+        try:
+            self.notion.archive_children(page_id)
+        except Exception as exc:
+            raise RuntimeError(f"[Notion 쓰기] 기존 블록 보관 실패: {exc}") from exc
+
+        try:
+            self.notion.append_children(page_id, new_blocks)
+        except Exception as exc:
+            raise RuntimeError(f"[Notion 쓰기] 새 블록 추가 실패: {exc}") from exc
 
         return OrganizeResult(
             title=title,

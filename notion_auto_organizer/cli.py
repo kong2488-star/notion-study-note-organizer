@@ -23,6 +23,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Ignore the cached AI response and organize the current page again.",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Print full traceback on error.",
+    )
     return parser
 
 
@@ -41,6 +46,10 @@ def main(argv: list[str] | None = None) -> int:
             organizer.ai_cache.clear()
         result = organizer.organize_page(args.page_id)
     except Exception as exc:
+        if args.debug:
+            import traceback
+
+            traceback.print_exc()
         parser.exit(1, f"error: {exc}\n")
 
     print(f"Organized Notion page: {result.title}")
