@@ -1,11 +1,13 @@
 from notion_auto_organizer import gemini_client
 from notion_auto_organizer.gemini_client import GeminiClient
+from notion_auto_organizer.note_schema import HeadingBlock, OrganizedNote
 
 
 class FakeAgent:
     def invoke(self, payload):
         assert payload["messages"][0]["content"] == "원문"
-        return {"messages": [{"content": "# 정리된 노트"}]}
+        note = OrganizedNote(blocks=[HeadingBlock(level=1, text="정리된 노트")])
+        return {"structured_response": note}
 
 
 def test_gemini_client_builds_langchain_agent(monkeypatch):
@@ -31,4 +33,5 @@ def test_gemini_client_builds_langchain_agent(monkeypatch):
         "temperature": 0.3,
     }
     assert captured["agent"]["tools"] == []
+    assert captured["agent"]["response_format"] is OrganizedNote
     assert captured["agent"]["name"] == "note_organizer_agent"

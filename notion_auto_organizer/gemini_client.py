@@ -3,7 +3,7 @@ from __future__ import annotations
 from langchain.agents import create_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from .ai_client import NOTE_ORGANIZER_PROMPT, organize_with_agent
+from .ai_client import NOTE_ORGANIZER_PROMPT, OrganizedNote, organize_with_agent
 
 
 class GeminiClient:
@@ -17,6 +17,7 @@ class GeminiClient:
             model=chat_model,
             tools=[],
             system_prompt=NOTE_ORGANIZER_PROMPT,
+            response_format=OrganizedNote,
             name="note_organizer_agent",
         )
 

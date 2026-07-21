@@ -24,7 +24,8 @@ AI 호출이나 Markdown 정리 단계가 실패하면 보관 처리 단계가 �
 - `notion.py`: Notion API 요청, 블록 트리 불러오기, 보관 처리, 추가 단위 분할을 담당합니다.
 - `markdown_convert.py`: Notion 블록과 Markdown 간 변환을 담당합니다.
 - `organizer.py`: 백업, AI 호출, 출력 저장, 페이지 교체를 조정합니다.
-- `ai_client.py`: 공통 `AIClient` 프로토콜, 프롬프트, 에이전트 출력 추출을 정의합니다.
+- `ai_client.py`: 공통 `AIClient` 프로토콜, 프롬프트, 구조화 응답 실행 로직을 정의합니다.
+- `note_schema.py`: agent 응답을 고정하는 Pydantic 블록 스키마(`OrganizedNote`)와 이를 Markdown으로 렌더링하는 함수를 정의합니다.
 - `gemini_client.py`: LangChain Gemini 채팅 모델과 에이전트를 구현합니다.
 - `openai_client.py`: OpenAI 호환 LangChain 채팅 모델과 에이전트를 구현합니다.
 - `ai_factory.py`: `AI_PROVIDER`를 기준으로 제공자 구현을 선택합니다.

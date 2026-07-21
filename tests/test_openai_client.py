@@ -1,11 +1,13 @@
 from notion_auto_organizer import openai_client
+from notion_auto_organizer.note_schema import HeadingBlock, OrganizedNote
 from notion_auto_organizer.openai_client import OpenAIClient
 
 
 class FakeAgent:
     def invoke(self, payload):
         assert payload["messages"][0]["content"] == "원문"
-        return {"messages": [{"content": [{"text": "# 정리된 노트"}]}]}
+        note = OrganizedNote(blocks=[HeadingBlock(level=1, text="정리된 노트")])
+        return {"structured_response": note}
 
 
 def test_openai_client_uses_official_endpoint_by_default(monkeypatch):
@@ -30,6 +32,7 @@ def test_openai_client_uses_official_endpoint_by_default(monkeypatch):
         "model": "openai-model",
         "temperature": 0.3,
     }
+    assert captured["agent"]["response_format"] is OrganizedNote
     assert captured["agent"]["name"] == "note_organizer_agent"
 
 

@@ -12,6 +12,7 @@
    - [`config.py`](#configpy--환경변수-로딩과-검증)
    - [`organizer.py`](#organizerpy--핵심-워크플로우)
    - [`ai_client.py`](#ai_clientpy--ai-provider-공용-계층)
+   - [`note_schema.py`](#note_schemapy--구조화된-응답-스키마)
    - [`ai_factory.py`](#ai_factorypy--provider-선택-팩토리)
    - [`gemini_client.py` / `openai_client.py`](#gemini_clientpy--openai_clientpy--provider-구현체)
    - [`notion.py`](#notionpy--notion-api-클라이언트)
@@ -50,6 +51,7 @@ __main__.py
           ├── ai_factory.py      (AI provider 선택)
           │     ├── gemini_client.py ─┐
           │     └── openai_client.py ─┤── ai_client.py (공용 프롬프트/Protocol)
+          │                                 └── note_schema.py (구조화 응답 스키마)
           ├── notion.py ── http.py    (Notion REST API)
           └── organizer.py            (핵심 워크플로우)
                 ├── ai_client.py      (AIClient Protocol에만 의존)
@@ -170,22 +172,29 @@ self.notion.append_children(page_id, new_blocks)
 
 ### `ai_client.py` — AI provider 공용 계층
 
-provider들이 공유하는 세 가지가 들어 있습니다: 시스템 프롬프트, 인터페이스 정의, 응답 추출 로직.
+provider들이 공유하는 세 가지가 들어 있습니다: 시스템 프롬프트, 인터페이스 정의, 구조화 응답 실행 로직.
 
-**`NOTE_ORGANIZER_PROMPT`** — AI에게 주는 한국어 시스템 프롬프트입니다. "한국어 입문자용 개발 학습 노트 편집자" 역할을 부여하고, 출력 형식을 지정합니다:
+**`NOTE_ORGANIZER_PROMPT`** — AI에게 주는 한국어 시스템 프롬프트입니다. "한국어 입문자용 개발 학습 노트 편집자" 역할을 부여합니다. 응답 형식(Markdown 문법 규칙)은 `note_schema.OrganizedNote`가 구조적으로 강제하므로, 프롬프트는 내용/톤 규칙에 집중합니다:
 
-- `# 제목 / ## 핵심 요약 / ## 개념 정리 / ## 예시 코드` 섹션 구조 사용
-- `markdown_to_blocks`가 실제로 인식하는 문법(제목 1~3단계, 문단, 중첩 없는 목록, 체크박스, 인용, 코드펜스, 구분선)만 쓰도록 제한
-- 굵게(`**`)·기울임(`*`)·취소선(`~~`)·인라인 코드(`` ` ``)·링크(`[]()`) 등 모든 인라인 서식 금지 — `markdown_to_blocks`의 `rich_text()`는 inline 서식을 파싱하지 않고 텍스트를 그대로 담기 때문에, 이런 문법을 쓰면 Notion에 리터럴 문자(`**`, `` ` `` 등)로 그대로 노출됨
-- 표와 중첩 리스트 금지 — `markdown_to_blocks`가 들여쓰기나 표 문법을 추적하지 않아 구조가 깨짐
-- 원본에서 언어/프레임워크를 추론하고, 이해를 돕는 짧은 예시 코드 추가. 확실하지 않은 내용은 지어내지 않기
-- 전체 답변을 코드펜스로 감싸지 말 것 (감싸면 `markdown_to_blocks`가 전부를 하나의 code 블록으로 잘못 해석)
+- 원본의 의도와 학습 맥락 보존, 입문자 친화적 흐름
+- 권장 블록 순서: `heading(level=1)` 제목 → `heading(level=2, "핵심 요약")` → ... → `heading(level=2, "예시 코드")` → `code`와 설명
+- 원본에서 언어/프레임워크를 추론하고 예시 코드 추가, 확실하지 않은 내용은 지어내지 않기, "확인 필요" 라벨 자제
+- 각 블록의 `text`/`content` 필드에는 순수 텍스트만 쓰고 Markdown 서식 문자(`**`, `*`, `` ` ``, `~~`, `[]()`)는 쓰지 않기 — 스키마가 표·중첩 리스트·4단계 이상 헤딩은 구조적으로 막지만, 필드 안에 리터럴 서식 문자를 쓰는 것까지는 막지 못하므로 마지막 안전장치로 지시함
 
 **`AIClient`** (Protocol) — `organize_markdown(markdown: str) -> str` 메서드 하나만 요구하는 인터페이스입니다. Python의 `Protocol`은 **구조적 타이핑**이라서, 상속 없이도 이 시그니처의 메서드를 가진 클래스는 전부 `AIClient`로 취급됩니다. `GeminiClient`/`OpenAIClient`는 물론 테스트의 Fake 클래스도 상속 선언 없이 그대로 사용됩니다.
 
-**`organize_with_agent(agent, markdown, *, provider)`** — 두 provider가 공유하는 실행 로직입니다. LangChain agent에 사용자 메시지로 Markdown을 넘기고, 응답 텍스트를 추출합니다. 빈 응답이면 `RuntimeError`를 던집니다 — 조용히 빈 문자열을 반환하면 organizer가 Notion 페이지를 **빈 내용으로 교체**해버리기 때문에, 반드시 실패로 처리해야 합니다.
+**`organize_with_agent(agent, markdown, *, provider)`** — 두 provider가 공유하는 실행 로직입니다. LangChain agent에 사용자 메시지로 Markdown을 넘기고, `create_agent(..., response_format=OrganizedNote)`가 강제한 구조화 응답(`result["structured_response"]`)을 읽어 `note_schema.render_markdown()`으로 Markdown 문자열을 만듭니다. 구조화 응답이 없거나(`None`) 렌더링 결과가 빈 문자열이면 `RuntimeError`를 던집니다 — 조용히 빈 문자열을 반환하면 organizer가 Notion 페이지를 **빈 내용으로 교체**해버리기 때문에, 반드시 실패로 처리해야 합니다.
 
-**`extract_agent_text(result)` / `_content_to_text(content)`** — LangChain agent의 응답 형태가 일정하지 않은 문제를 흡수하는 계층입니다. messages 리스트를 **역순으로** 훑어 (마지막 AI 응답이 최종 결과이므로) 처음 만나는 텍스트를 반환합니다. message가 객체일 수도 dict일 수도 있고, content가 문자열일 수도 `{"text": ...}` dict 청크의 리스트일 수도 있어서 모든 경우를 처리합니다.
+### `note_schema.py` — 구조화된 응답 스키마
+
+AI agent의 응답을 자유 텍스트 Markdown이 아니라 **Pydantic으로 고정된 블록 목록**으로 받기 위한 모듈입니다. `markdown_to_blocks`가 실제로 지원하는 8가지 블록(제목 1~3단계, 문단, 순서 없는/있는 목록, 체크박스, 인용, 코드, 구분선)에 1:1로 대응하는 모델을 정의합니다.
+
+- `HeadingBlock`/`ParagraphBlock`/`BulletedListItemBlock`/`NumberedListItemBlock`/`TodoBlock`/`QuoteBlock`/`CodeBlock`/`DividerBlock` — 각각 `type` 리터럴로 태그된 블록 모델.
+- `OrganizedBlock` — 위 8개를 `type` 필드로 구분하는 discriminated union (`Field(discriminator="type")`).
+- `OrganizedNote` — `blocks: list[OrganizedBlock]` (최소 1개). `gemini_client.py`/`openai_client.py`가 `create_agent(..., response_format=OrganizedNote)`로 넘겨 LangChain이 모델의 응답을 이 스키마로 강제하게 만듭니다.
+- `render_markdown(note)` — `OrganizedNote`를 `markdown_to_blocks`가 다시 파싱할 수 있는 Markdown 문자열로 결정적으로 변환합니다. 블록 사이는 항상 빈 줄로 구분합니다 — 문단 두 개가 빈 줄 없이 이어지면 `markdown_to_blocks`가 하나로 합쳐버리기 때문입니다.
+
+이 스키마 자체가 표, 중첩 리스트, 4단계 이상 헤딩을 구조적으로 막습니다 — 애초에 그런 블록 타입이나 필드가 존재하지 않습니다. 모델이 규칙을 "어길" 방법이 스키마 검증을 통과하는 한 없다는 점에서, 프롬프트로만 지시하고 사후에 검사하는 방식보다 더 견고합니다.
 
 ### `ai_factory.py` — provider 선택 팩토리
 
@@ -219,14 +228,16 @@ def create_ai_client(settings: Settings) -> AIClient:
 chat_model = ChatOpenAI(..., temperature=0.3)      # 또는 ChatGoogleGenerativeAI
 self.agent = create_agent(
     model=chat_model,
-    tools=[],                                       # 도구 없이 텍스트 재작성만
+    tools=[],                                       # 도구 없이 구조화 응답만
     system_prompt=NOTE_ORGANIZER_PROMPT,
+    response_format=OrganizedNote,                  # 응답을 note_schema 스키마로 강제
     name="note_organizer_agent",
 )
 ```
 
 - `temperature=0.3`: 창의성보다 일관된 정리 결과를 원하므로 낮게 설정.
-- `tools=[]`: 검색·계산 같은 도구가 필요 없는 순수 텍스트 변환 작업이라 비워둡니다.
+- `tools=[]`: 검색·계산 같은 도구가 필요 없는 순수 변환 작업이라 비워둡니다.
+- `response_format=OrganizedNote`: 자유 텍스트 대신 `note_schema.OrganizedNote` 구조로 응답을 고정합니다.
 
 `organize_markdown()`은 둘 다 한 줄로, `ai_client.organize_with_agent()`에 위임합니다. `provider="Gemini"` 같은 이름은 오류 메시지에 어느 provider가 실패했는지 표시하는 용도입니다.
 
@@ -354,8 +365,10 @@ requests 같은 외부 라이브러리 없이 표준 라이브러리 `urllib`만
 | `test_markdown_convert.py` | 블록→Markdown 기본 변환, Markdown→블록의 타입 판별과 코드 언어 정규화(js→javascript), 긴 문단의 분할을 검증합니다. |
 | `test_cache.py` | 캐시 hit/miss 동작과, 같은 원본으로 두 번 실행하면 AI가 한 번만 호출되는지(호출 횟수 카운팅)를 검증합니다. |
 | `test_http.py` | 쿼리 인코딩과 `None` 값 제거, JSON body와 Content-Type 자동 설정, `HTTPError`/`URLError`가 응답 본문을 포함한 `HttpError`로 래핑되는지 검증합니다. |
-| `test_gemini_client.py` | `ChatGoogleGenerativeAI`와 `create_agent`에 전달되는 인자(모델명, API 키, temperature 0.3, tools=[])를 캡처해 검증합니다. |
-| `test_openai_client.py` | `ChatOpenAI`의 공통 API key, 모델, 선택적 base URL과 리스트형 content(`{"text": ...}`) 추출을 검증합니다. |
+| `test_note_schema.py` | 블록 타입별 `render_markdown` 출력과, 렌더링 결과를 `markdown_to_blocks`로 되돌렸을 때 같은 블록 타입 시퀀스가 나오는지(왕복 검증)를 확인합니다. |
+| `test_ai_client.py` | `organize_with_agent`가 구조화 응답을 렌더링하는지, `structured_response`가 없거나 렌더링 결과가 비어 있을 때 `RuntimeError`를 던지는지 검증합니다. |
+| `test_gemini_client.py` | `ChatGoogleGenerativeAI`와 `create_agent`에 전달되는 인자(모델명, API 키, temperature 0.3, tools=[], response_format=OrganizedNote)를 캡처해 검증합니다. |
+| `test_openai_client.py` | `ChatOpenAI`의 공통 API key, 모델, 선택적 base URL과 `create_agent`에 전달되는 `response_format=OrganizedNote`를 검증합니다. |
 
 실행: `python -m pytest`
 
