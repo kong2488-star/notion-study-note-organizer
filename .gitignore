@@ -7,3 +7,5 @@ backups/
 posts/
 cache/
 agent.md
+.claude/settings.local.json
+.claude/hooks/log/
