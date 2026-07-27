@@ -11,3 +11,7 @@ class NotionError(OrganizationError):
 
 class AIClientError(OrganizationError):
     """Raised when the AI provider call fails."""
+
+
+class HttpError(RuntimeError):
+    """Raised when an HTTP request fails at transport level."""

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from notion_auto_organizer.exceptions import AIClientError
+from notion_auto_organizer.exceptions import AIClientError, NotionError, OrganizationError
 from notion_auto_organizer.organizer import NotionPageOrganizer, slugify
 
 PAGE_ID = "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d"
@@ -40,6 +40,16 @@ class FakeNotion:
     def append_children(self, page_id, blocks):
         self.seen_page_ids.append(page_id)
         self.appended.extend(blocks)
+
+
+class FailingAppendNotion(FakeNotion):
+    def append_children(self, page_id, blocks):
+        raise RuntimeError("append failed")
+
+
+class EmptyNotion(FakeNotion):
+    def list_block_children_tree(self, page_id):
+        return []
 
 
 class FailingAI:
@@ -104,6 +114,27 @@ def test_invalid_page_id_is_rejected_before_any_notion_call(tmp_path: Path):
         organizer.organize_page("not-a-page-id")
 
     assert notion.seen_page_ids == []
+
+
+def test_append_failure_leaves_page_intact(tmp_path: Path):
+    notion = FailingAppendNotion()
+    organizer = make_organizer(notion, FakeAI(), tmp_path)
+
+    with pytest.raises(NotionError):
+        organizer.organize_page(PAGE_ID)
+
+    assert not notion.archived
+
+
+def test_empty_page_raises_before_ai_or_notion_write(tmp_path: Path):
+    notion = EmptyNotion()
+    organizer = make_organizer(notion, FakeAI(), tmp_path)
+
+    with pytest.raises(OrganizationError):
+        organizer.organize_page(PAGE_ID)
+
+    assert not notion.archived
+    assert notion.appended == []
 
 
 @pytest.mark.parametrize(

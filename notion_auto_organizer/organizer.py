@@ -47,6 +47,10 @@ class NotionPageOrganizer:
             raise NotionError(f"[Notion 읽기] 페이지 조회 실패 ({page_id}): {exc}") from exc
 
         original_markdown = blocks_to_markdown(blocks)
+        if not original_markdown.strip():
+            raise OrganizationError(
+                "[페이지 읽기] 정리할 내용이 없습니다. 페이지에 블록을 추가한 뒤 다시 실행하세요."
+            )
 
         safe_title = slugify(title)
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -68,7 +72,7 @@ class NotionPageOrganizer:
             self.ai_cache.set(original_markdown, organized_markdown)
 
         try:
-            post_path = self.posts_dir / f"{safe_title}-organized.md"
+            post_path = self.posts_dir / f"{safe_title}-{timestamp}-organized.md"
             post_path.write_text(organized_markdown, encoding="utf-8")
         except Exception as exc:
             raise OrganizationError(f"[결과 저장] 정리 파일 쓰기 실패: {exc}") from exc
@@ -76,14 +80,14 @@ class NotionPageOrganizer:
         new_blocks = markdown_to_blocks(organized_markdown)
 
         try:
-            self.notion.archive_children(page_id)
-        except Exception as exc:
-            raise NotionError(f"[Notion 쓰기] 기존 블록 보관 실패: {exc}") from exc
-
-        try:
             self.notion.append_children(page_id, new_blocks)
         except Exception as exc:
             raise NotionError(f"[Notion 쓰기] 새 블록 추가 실패: {exc}") from exc
+
+        try:
+            self.notion.archive_children(page_id)
+        except Exception as exc:
+            raise NotionError(f"[Notion 쓰기] 기존 블록 보관 실패: {exc}") from exc
 
         return OrganizeResult(
             title=title,
