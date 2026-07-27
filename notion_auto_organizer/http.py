@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import json
 from typing import Any
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+
+import requests
 
 from .exceptions import HttpError
+
+_session = requests.Session()
 
 
 def request_json(
@@ -17,25 +18,23 @@ def request_json(
     body: dict[str, Any] | None = None,
     query: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    if query:
-        url = f"{url}?{urlencode({k: v for k, v in query.items() if v is not None})}"
+    params = {k: v for k, v in query.items() if v is not None} if query else None
 
-    data = None
-    request_headers = headers.copy() if headers else {}
-    if body is not None:
-        data = json.dumps(body).encode("utf-8")
-        request_headers.setdefault("Content-Type", "application/json")
-
-    req = Request(url, data=data, headers=request_headers, method=method.upper())
     try:
-        with urlopen(req, timeout=60) as response:
-            raw = response.read().decode("utf-8")
-    except HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")
-        raise HttpError(f"{method.upper()} {url} failed: HTTP {exc.code} {detail}") from exc
-    except URLError as exc:
-        raise HttpError(f"{method.upper()} {url} failed: {exc.reason}") from exc
+        resp = _session.request(
+            method.upper(),
+            url,
+            headers=headers,
+            json=body,
+            params=params,
+            timeout=60,
+        )
+        resp.raise_for_status()
+    except requests.HTTPError as exc:
+        raise HttpError(
+            f"{method.upper()} {url} failed: HTTP {exc.response.status_code} {exc.response.text}"
+        ) from exc
+    except requests.ConnectionError as exc:
+        raise HttpError(f"{method.upper()} {url} failed: {exc}") from exc
 
-    if not raw:
-        return {}
-    return json.loads(raw)
+    return resp.json() if resp.text else {}
