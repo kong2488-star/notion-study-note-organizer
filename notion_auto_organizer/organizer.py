@@ -47,6 +47,7 @@ class NotionPageOrganizer:
         except Exception as exc:
             raise NotionError(f"[Notion 읽기] 페이지 조회 실패 ({page_id}): {exc}") from exc
 
+        old_block_ids = [b["id"] for b in blocks]
         original_markdown = blocks_to_markdown(blocks)
         if not original_markdown.strip():
             raise OrganizationError(
@@ -83,14 +84,15 @@ class NotionPageOrganizer:
 
         new_blocks = markdown_to_blocks(organized_markdown)
 
-        print("Notion 페이지 업데이트 중...", flush=True)
+        print(f"새 블록 {len(new_blocks)}개 추가 중...", flush=True)
         try:
             self.notion.append_children(page_id, new_blocks)
         except Exception as exc:
             raise NotionError(f"[Notion 쓰기] 새 블록 추가 실패: {exc}") from exc
 
+        print(f"기존 블록 {len(old_block_ids)}개 보관 중...", flush=True)
         try:
-            self.notion.archive_children(page_id)
+            self.notion.archive_blocks(old_block_ids)
         except Exception as exc:
             raise NotionError(f"[Notion 쓰기] 기존 블록 보관 실패: {exc}") from exc
 

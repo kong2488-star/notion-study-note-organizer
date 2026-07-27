@@ -24,7 +24,7 @@ class FakeNotion:
             }
         ]
 
-    def archive_children(self, page_id: str) -> None:
+    def archive_blocks(self, block_ids: list[str]) -> None:
         self.archived = True
 
     def append_children(self, page_id: str, blocks: list[dict]) -> None:

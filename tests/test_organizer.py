@@ -33,8 +33,7 @@ class FakeNotion:
     def list_block_children_tree(self, page_id):
         return self.list_block_children(page_id)
 
-    def archive_children(self, page_id):
-        self.seen_page_ids.append(page_id)
+    def archive_blocks(self, block_ids):
         self.archived = True
 
     def append_children(self, page_id, blocks):

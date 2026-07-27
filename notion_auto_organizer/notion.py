@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 from .http import request_json
@@ -74,9 +75,13 @@ class NotionClient:
                 body={"children": chunk},
             )
 
-    def archive_children(self, block_id: str) -> None:
-        for child in self.list_block_children(block_id):
-            self.archive_block(child["id"])
+    def archive_blocks(self, block_ids: list[str]) -> None:
+        if not block_ids:
+            return
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = {executor.submit(self.archive_block, bid): bid for bid in block_ids}
+            for future in as_completed(futures):
+                future.result()
 
 
 def normalize_page_id(page_id: str) -> str:
