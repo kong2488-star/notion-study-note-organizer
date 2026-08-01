@@ -1,4 +1,8 @@
-from notion_auto_organizer.markdown_convert import blocks_to_markdown, markdown_to_blocks
+from notion_auto_organizer.markdown_convert import (
+    blocks_to_markdown,
+    markdown_to_blocks,
+    normalize_code_language,
+)
 
 
 def test_blocks_to_markdown_basic_blocks():
@@ -63,6 +67,10 @@ const value = 1;
         "divider",
     ]
     assert blocks[6]["code"]["language"] == "javascript"
+
+
+def test_normalize_code_language_maps_text_to_plain_text():
+    assert normalize_code_language("text") == "plain text"
 
 
 def test_markdown_to_blocks_splits_long_paragraph():

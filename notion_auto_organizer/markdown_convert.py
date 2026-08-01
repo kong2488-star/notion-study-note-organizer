@@ -230,5 +230,6 @@ def normalize_code_language(language: str) -> str:
         "shell": "bash",
         "sh": "bash",
         "txt": "plain text",
+        "text": "plain text",
     }
     return aliases.get(normalized, normalized or "plain text")
