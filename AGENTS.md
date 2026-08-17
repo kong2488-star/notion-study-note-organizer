@@ -107,6 +107,8 @@ notion-auto-organizer "<PAGE_ID>" --refresh
 
 전체 Notion 페이지를 전송하기 전에 짧은 제공자 프롬프트를 실행하세요. 작업이 성공하면 페이지 내용이 교체되므로 첫 실행에는 테스트 페이지를 사용하세요.
 
+외부 AI 제공자·API 키 없이 Claude Code에서 직접 정리하려면 `notion-organize` skill(`.claude/skills/notion-organize/SKILL.md`)을 사용하세요. Notion MCP로 페이지를 읽고, Claude가 같은 정리 규칙으로 다듬은 뒤, 성공 시에만 페이지를 교체합니다. 위 Python CLI 앱과 병행 유지됩니다.
+
 ## 코딩 규칙
 
 - **Python** 코드 스타일은 PEP8을 따릅니다.
